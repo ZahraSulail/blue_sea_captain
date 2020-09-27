@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Blue Sea Captain</string>
+    <string name="signup">إنشاء حساب</string>
+    <string name="username">اسم المستخدم</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="password">كلمة السر</string>
+    <string name="have_an_account">لديك حساب؟</string>
+    <string name="log_in">تسجيل دخول</string>
+    <string name="date_sample">29 أبريل</string>
+    <string name="available_seats">مقاعد متوفرة</string>
+    <string name="booked">محجوز</string>
+    <string name="booked_sample">محجوز 10</string>
+    <string name="book">احجز</string>
+    <string name="trip_status">حالة الرحلة</string>
+    <string name="to_destination">إلى الوجهة</string>
+    <string name="add_trip">أضف رحلة</string>
+    <string name="start_trip">إبدأ الرحلة</string>
+    <string name="arrived">وصلت الرحلة</string>
+    <string name="from">من بلد</string>
+    <string name="to">إلى بلد</string>
+    <string name="invalid_email">الايميل غير صالح</string>
+    <string name="invalid_password_length">كلمة المرور يجب ان لا تكون اقل من٦ احرف</string>
+    <string name="login_error">فشل في تسجيل الدخول</string>
+    <string name="trips_list">قائمة الرحلات</string>
+    <string name="trip_details">تفاصيل الرحلة</string>
+    <string name="log_out">log out</string>
+    <string name="error_msg_position">تنبيه يجب ملئ هذا الحقل</string>
+    <string name="error_msg_destination">تنبيه يجب ملئ هذا الحقل</string>
+    <string name="eroor_msg_available_seats">تنبيه يجب ملئ هذا الحقل</string>
+    <string name="some_thing_wrong">حدث خطآ</string>
+</resources>
+
