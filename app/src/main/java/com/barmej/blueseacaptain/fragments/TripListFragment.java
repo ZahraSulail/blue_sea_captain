@@ -1,17 +1,19 @@
 package com.barmej.blueseacaptain.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.Button;
 
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
+import com.barmej.blueseacaptain.ctivities.AddTripActivity;
 import com.barmej.blueseacaptain.domain.entity.Trip;
+import com.barmej.blueseacaptain.inteerface.OnTripClickListiner;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -23,49 +25,76 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class TripListFragment extends Fragment {
+public class TripListFragment extends Fragment implements OnTripClickListiner {
 
-
+    /*
+      Add trip button to start AddTripActivity
+     */
+    private Button mAddButton;
+    /*
+      Recycler view variable
+     */
     private RecyclerView mRecyclerView;
-    private TripItemsAdapter mAdapter;
-    private ArrayList<Trip> mTrips;
-    DatabaseReference reference;
 
+    /*
+      TripItemsAdapter object
+     */
+    private TripItemsAdapter mAdapter;
+
+    /*
+      mTrips ArrayList
+     */
+    private ArrayList<Trip> mTrips;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_trips_list, container, false);
+        return inflater.inflate( R.layout.fragment_trips_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated( view, savedInstanceState );
-
         mRecyclerView = view.findViewById( R.id.recycler_view );
         mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext()));
         mTrips = new ArrayList<>();
-        mAdapter = new TripItemsAdapter( mTrips, TripListFragment.this);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new TripItemsAdapter( mTrips, TripListFragment.this );
+        mRecyclerView.setAdapter( mAdapter );
+        mAddButton = view.findViewById( R.id.button_add_trip );
 
-        mTrips = new ArrayList<>();
-
-        reference = FirebaseDatabase.getInstance().getReference().child( "Trip_Details" );
-        reference.addValueEventListener( new ValueEventListener() {
+        System.out.println("CREATED!!");
+        FirebaseDatabase.getInstance().getReference("Trip_Details").addValueEventListener( new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                mTrips.clear();
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Trip trip = snapshot.getValue(Trip.class);
-                    mTrips.add( trip );
+                if(snapshot.exists()) {
+                    for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                        Trip trip =dataSnapshot.getValue( Trip.class );
+                        mTrips.add(trip  );
+                    }
+                    mAdapter.notifyDataSetChanged();
                 }
-                mAdapter.notifyDataSetChanged();
+                System.out.println("snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), R.string.some_thing_wrong, Toast.LENGTH_SHORT).show();
+
             }
         } );
+
+        //Add trip button
+        mAddButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent( getContext(), AddTripActivity.class );
+                startActivity( intent );
+
+            }
+        } );
+    }
+
+
+    @Override
+    public void onTripClick(Trip trip) {
 
     }
 }

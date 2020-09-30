@@ -28,5 +28,8 @@
     <string name="error_msg_destination">تنبيه يجب ملئ هذا الحقل</string>
     <string name="eroor_msg_available_seats">تنبيه يجب ملئ هذا الحقل</string>
     <string name="some_thing_wrong">حدث خطآ</string>
+    <string name="trip_added">trip is added</string>
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
 

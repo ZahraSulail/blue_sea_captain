@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ctivities.MainActivity">
+    tools:context=".ctivities.MainActivity"
+    android:id="@+id/layout_main">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -12,7 +13,6 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:elevation="0dp"
         >
-
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolBar_home"
             android:layout_width="match_parent"
@@ -21,44 +21,17 @@
             app:title="@string/app_name"
             app:titleTextColor="@android:color/white"
             />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout_home"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabIndicatorColor="@android:color/white"
-            app:tabSelectedTextColor="@android:color/white"
-            app:tabTextColor="@android:color/darker_gray"
-            android:background="@color/colorPrimary"
-            app:tabGravity="fill"
-            app:tabMode="fixed"/>
-
-
     </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager_home"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        />
+        android:layout_height="match_parent">
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/map_container_fragment"
+            android:name="com.barmej.blueseacaptain.fragments.TripListFragment"/>
+    </LinearLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

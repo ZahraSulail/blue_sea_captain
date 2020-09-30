@@ -25,7 +25,7 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_position"
+        android:id="@+id/text_input_layout_position"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,14 +33,14 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:hint="@string/from"
-        app:layout_constraintBottom_toTopOf="@+id/text_input_destination"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout12"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_text_position"
+            android:id="@+id/text_input_edit_text_position"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName" />
@@ -48,7 +48,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_destination"
+        android:id="@+id/text_input_layout_destination"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,14 +56,14 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:hint="@string/to"
-        app:layout_constraintBottom_toTopOf="@+id/date_paker"
+        app:layout_constraintBottom_toTopOf="@+id/date_picker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_input_position">
+        app:layout_constraintTop_toBottomOf="@+id/text_input_layout_position">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_text_destination"
+            android:id="@+id/text_input_edit_text_destination"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName" />
@@ -79,14 +79,14 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/text_view_available_seats"
+        app:layout_constraintBottom_toTopOf="@+id/text_input_layout_available_seats"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_input_destination" />
+        app:layout_constraintTop_toBottomOf="@+id/text_input_layout_destination" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_available_seats"
+        android:id="@+id/text_input_layout_available_seats"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@+id/date_picker">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_text_available_seats"
+            android:id="@+id/text_input_edit_text_avalable_seats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number" />
@@ -110,7 +110,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_add_a_trip"
+        android:id="@+id/button_add"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -138,6 +138,5 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.07" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

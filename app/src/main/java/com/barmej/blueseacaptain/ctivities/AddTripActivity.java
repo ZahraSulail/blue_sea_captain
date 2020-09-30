@@ -1,22 +1,22 @@
 package com.barmej.blueseacaptain.ctivities;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.Toast;
 
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.domain.entity.Trip;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
 import java.util.Objects;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddTripActivity extends AppCompatActivity {
@@ -31,24 +31,19 @@ public class AddTripActivity extends AppCompatActivity {
     Trip mTrip;
     DatabaseReference databaseReference;
     long dateTime;
-
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_add_trip );
-
-        mPositionTextInputLayout = findViewById( R.id.text_input_position);
-        mDestinationTextInputLayout = findViewById( R.id.text_input_destination );
-        mAvailableSeatsTextIputLayout = findViewById( R.id.text_input_available_seats );
-        mPositionEditText = findViewById( R.id.edit_text_position );
-        mDestinationEditText = findViewById( R.id.edit_text_destination );
-        mAvailableSeatsEditText = findViewById( R.id.edit_text_available_seats );
-        mAddTripButton = findViewById( R.id.button_add_a_trip);
+        mPositionTextInputLayout = findViewById( R.id.text_input_layout_position );
+        mPositionEditText = findViewById( R.id.text_input_edit_text_position );
+        mDestinationTextInputLayout = findViewById( R.id.text_input_layout_destination );
+        mDestinationEditText = findViewById( R.id.text_input_edit_text_destination );
+        mDestinationTextInputLayout = findViewById( R.id.text_input_layout_available_seats );
+        mAvailableSeatsEditText = findViewById( R.id.text_input_edit_text_avalable_seats );
+        mAddTripButton = findViewById( R.id.button_add );
         mDatePicker = findViewById( R.id.date_picker );
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Trip_Details");
         mAddTripButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,12 +52,15 @@ public class AddTripActivity extends AppCompatActivity {
         } );
     }
 
-
     private void addTripToFirebase(){
         mPositionTextInputLayout.setError( null );
         mDestinationTextInputLayout.setError( null );
         mAvailableSeatsTextIputLayout.setError( null );
-        //dateTime = Long.parseLong( mDatePicker.getMonth() + "/" + mDatePicker.getDayOfMonth() + "/" + mDatePicker.getYear());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set( Calendar.DAY_OF_MONTH, mDatePicker.getDayOfMonth());
+        calendar.set( Calendar.MONTH, mDatePicker.getMonth() );
+        calendar.set(Calendar.YEAR, mDatePicker.getYear());
 
 
         if(TextUtils.isEmpty( mPositionEditText.getText())){
@@ -82,17 +80,16 @@ public class AddTripActivity extends AppCompatActivity {
         mTrip.setPositionSeaPortName( Objects.requireNonNull( mPositionEditText.getText() ).toString().trim());
         mTrip.setDestinationSeaportName( Objects.requireNonNull( mDestinationEditText.getText() ).toString().trim());
         mTrip.setAvailableSeats( Integer.parseInt( Objects.requireNonNull( mAvailableSeatsEditText.getText() ).toString().trim()));
-       // mTrip.setDateTime(dateTime);
-        databaseReference.push().setValue(mTrip);
+        mTrip.setDateTime(calendar.getTimeInMillis());
+        databaseReference.push().setValue(mTrip).addOnSuccessListener( new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(AddTripActivity.this, R.string.trip_added , Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } );
 
 
     }
 
-
-
-
-
-}
-
-
-
+    }
