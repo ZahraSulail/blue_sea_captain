@@ -18,8 +18,11 @@ import java.util.Calendar;
 import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class AddTripActivity extends AppCompatActivity {
+
+
     private TextInputLayout mPositionTextInputLayout;
     private TextInputLayout mDestinationTextInputLayout;
     private TextInputLayout mAvailableSeatsTextIputLayout;
@@ -30,10 +33,16 @@ public class AddTripActivity extends AppCompatActivity {
     private DatePicker mDatePicker;
     Trip mTrip;
     DatabaseReference databaseReference;
-    long dateTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
+
+        Toolbar toolbar = findViewById( R.id.toolBar_home);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
+
         setContentView( R.layout.activity_add_trip );
         mPositionTextInputLayout = findViewById( R.id.text_input_layout_position );
         mPositionEditText = findViewById( R.id.text_input_edit_text_position );

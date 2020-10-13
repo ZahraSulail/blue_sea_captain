@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,34 +47,38 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
       mTrips ArrayList
      */
     private ArrayList<Trip> mTrips;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate( R.layout.fragment_trips_list, container, false);
+        return inflater.inflate( R.layout.fragment_trips_list, container, false );
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated( view, savedInstanceState );
+
         mRecyclerView = view.findViewById( R.id.recycler_view );
-        mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext()));
+        mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
         mTrips = new ArrayList<>();
         mAdapter = new TripItemsAdapter( mTrips, TripListFragment.this );
         mRecyclerView.setAdapter( mAdapter );
+        mRecyclerView.addItemDecoration( new DividerItemDecoration( getContext(), DividerItemDecoration.VERTICAL ) );
+
         mAddButton = view.findViewById( R.id.button_add_trip );
 
-        System.out.println("CREATED!!");
-        FirebaseDatabase.getInstance().getReference("Trip_Details").addValueEventListener( new ValueEventListener() {
+        System.out.println( "CREATED!!" );
+        FirebaseDatabase.getInstance().getReference( "Trip_Details" ).addValueEventListener( new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
-                    for(DataSnapshot dataSnapshot: snapshot.getChildren()) {
-                        Trip trip =dataSnapshot.getValue( Trip.class );
-                        mTrips.add(trip  );
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Trip trip = dataSnapshot.getValue( Trip.class );
+                        mTrips.add( trip );
                     }
                     mAdapter.notifyDataSetChanged();
                 }
-                System.out.println("snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString());
+                System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
             }
 
             @Override
@@ -92,9 +98,15 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         } );
     }
 
-
     @Override
     public void onTripClick(Trip trip) {
 
+        TripDetalsFragment detalsFragment = new TripDetalsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable( TripDetalsFragment.TRIP_DATA, trip  );
+        detalsFragment.setArguments( bundle );
+        FragmentManager manager = getChildFragmentManager();
+        manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment ).commit();
+        mAddButton.setVisibility( View.GONE );
     }
 }
