@@ -5,7 +5,6 @@ import java.io.Serializable;
 public class Captain implements Serializable {
     private String id;
     private String status;
-    private int shipNumber;
     private String captainName;
     private String assignedTrip;
 

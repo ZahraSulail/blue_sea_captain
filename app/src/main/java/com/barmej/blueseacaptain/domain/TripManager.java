@@ -41,7 +41,7 @@ public class TripManager {
     /*
      Costructor
      */
-    public TripManager(){
+    public TripManager() {
         database = FirebaseDatabase.getInstance();
 
     }
@@ -49,50 +49,48 @@ public class TripManager {
     /*
      getInstance method to reuse object reference
      */
-    public static TripManager getInstance(){
-        if(inatance == null){
+    public static TripManager getInstance() {
+        if (inatance == null) {
             inatance = new TripManager();
         }
         return inatance;
 
     }
 
-    public void getCaptainProfileAndMArkAvailableIfOffLine(final String captainId, final CallBack callback){
-       database.getReference(CAPTAINS_REF_PATH).child(captainId).addListenerForSingleValueEvent( new ValueEventListener() {
-           @Override
-           public void onDataChange(@NonNull DataSnapshot snapshot) {
-               captain = snapshot.getValue(Captain.class);
-               if(captain != null){
-                   callback.onComplete( true );
+    public void getCaptainProfile(final String captainId, final CallBack callback) {
+        database.getReference( CAPTAINS_REF_PATH ).child( captainId ).addListenerForSingleValueEvent( new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                captain = snapshot.getValue( Captain.class );
+                if (captain != null) {
+                    callback.onComplete( true );
 
-               }else{
-                   callback.onComplete( false );
-               }
-           }
+                } else {
+                    callback.onComplete( false );
+                }
+            }
 
-           @Override
-           public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-           }
-       } );
+            }
+        } );
     }
 
 
-
-
-    public void startListiningForStatus(StatusCallBack statusCallBack){
+    public void startListiningForStatus(StatusCallBack statusCallBack) {
         this.statusCallBack = statusCallBack;
-        tripStatusListener = database.getReference(TRIP_REF_PATH).child(captain.getAssignedTrip())
+        tripStatusListener = database.getReference( TRIP_REF_PATH ).child( captain.getAssignedTrip() )
                 .addValueEventListener( new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        trip = snapshot.getValue(Trip.class);
+                        trip = snapshot.getValue( Trip.class );
 
-                        if(trip != null){
+                        if (trip != null) {
                             FullStatus fullStatus = new FullStatus();
                             fullStatus.setCaptain( captain );
-                            fullStatus.setTrip(trip);
-                            notifyListiner(fullStatus);
+                            fullStatus.setTrip( trip );
+                            notifyListiner( fullStatus );
 
                         }
                     }
@@ -102,54 +100,51 @@ public class TripManager {
 
                     }
                 } );
-
     }
-
-
 
     /*
       listiner to notify about statusCallBack
      */
-   private void notifyListiner(FullStatus fullStatus){
-        if(statusCallBack != null){
-            statusCallBack.onUpdate(fullStatus);
+    private void notifyListiner(FullStatus fullStatus) {
+        if (statusCallBack != null) {
+            statusCallBack.onUpdate( fullStatus );
 
         }
 
-   }
-/*
-   Tracing current location and update its status
- */
-   public void updateCurrentLocation(double lat, double lng){
-        trip.setCurrentLat(lat);
+    }
+
+    /*
+       Tracing current location and update its status
+     */
+    public void updateCurrentLocation(double lat, double lng) {
+        trip.setCurrentLat( lat );
         trip.setCurrentLng( lng );
-        database.getReference(TRIP_REF_PATH).child( trip.getId() ).setValue( trip );
-   }
+        database.getReference( TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
+    }
 
 
-   /*
-     Tracing trip when it arrived to destination
-    */
-   public void updateToArrivedToDestination(){
-       trip.setStatus( Trip.status.ARRIVED.name());
-       database.getReference(TRIP_REF_PATH).child( trip.getId() ).setValue( trip );
-      captain.setStatus( Captain.status.AVAILABEL.name());
-      captain.setAssignedTrip(null);
-      trip = null;
+    /*
+      Tracing trip when it arrived to destination
+     */
+    public void updateToArrivedToDestination() {
+        trip.setStatus( Trip.Status.ARRIVED.name() );
+        database.getReference( TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
+        captain.setStatus( Captain.status.AVAILABEL.name() );
+        captain.setAssignedTrip( null );
+        trip = null;
 
-       database.getReference(CAPTAINS_REF_PATH).child( captain.getId() ).setValue( captain );
-       FullStatus fullStatus = new FullStatus();
-       fullStatus.setCaptain( captain );
-       notifyListiner(fullStatus);
-   }
+        database.getReference( CAPTAINS_REF_PATH ).child( captain.getId() ).setValue( captain );
+        FullStatus fullStatus = new FullStatus();
+        fullStatus.setCaptain( captain );
+        notifyListiner( fullStatus );
+    }
 
 
-
-   public void stopListiningToStatus(){
-       if(tripStatusListener != null){
-           database.getReference().child(captain.getId()).removeEventListener( tripStatusListener);
-       }
-       statusCallBack = null;
-   }
+    public void stopListiningToStatus() {
+        if (tripStatusListener != null) {
+            database.getReference().child( captain.getId() ).removeEventListener( tripStatusListener );
+        }
+        statusCallBack = null;
+    }
 
 }

@@ -47,7 +47,7 @@ public class TripItemsAdapter extends RecyclerView.Adapter<TripItemsAdapter.Trip
         TextView mDestinationTextView;
         TextView mAvailableSeatsTextView;
         TextView mBookedSeatsTextView;
-        Trip trip;
+
         public TripViewHolder(@NonNull View itemView) {
             super(itemView);
             mDataTextView = itemView.findViewById( R.id.item_text_view_date );
@@ -58,6 +58,7 @@ public class TripItemsAdapter extends RecyclerView.Adapter<TripItemsAdapter.Trip
             itemView.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Trip trip = mTripList.get(getAdapterPosition());
                     mTripClickListiner.onTripClick( trip );
                 }
             } );

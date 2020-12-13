@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
 import com.barmej.blueseacaptain.ctivities.AddTripActivity;
+import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.barmej.blueseacaptain.inteerface.OnTripClickListiner;
 import com.google.firebase.database.DataSnapshot;
@@ -77,8 +78,9 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
                         mTrips.add( trip );
                     }
                     mAdapter.notifyDataSetChanged();
+                    System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
                 }
-                System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
+
             }
 
             @Override
@@ -100,11 +102,9 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
 
     @Override
     public void onTripClick(Trip trip) {
-
-        TripDetalsFragment detalsFragment = new TripDetalsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable( TripDetalsFragment.TRIP_DATA, trip  );
-        detalsFragment.setArguments( bundle );
+        FullStatus fullStatus = new FullStatus();
+        fullStatus.setTrip( trip );
+        TripDetalsFragment detalsFragment = TripDetalsFragment.getInstance(fullStatus);
         FragmentManager manager = getChildFragmentManager();
         manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment ).commit();
         mAddButton.setVisibility( View.GONE );

@@ -27,23 +27,7 @@ public class Trip implements Serializable {
 
     }
 
-    public Trip(String status, String id, String captainId, String userId, double positionLat, double positionLng, double destinationLat, double destinationLng, double currentLat, double currentLng, String positionSeaPortName, String destinationSeaportName, int availableSeats, int bookedSeats, long dateTime) {
-        this.status = status;
-        this.id = id;
-        this.captainId = captainId;
-        this.userId = userId;
-        this.positionLat = positionLat;
-        this.positionLng = positionLng;
-        this.destinationLat = destinationLat;
-        this.destinationLng = destinationLng;
-        this.currentLat = currentLat;
-        this.currentLng = currentLng;
-        this.positionSeaPortName = positionSeaPortName;
-        this.destinationSeaportName = destinationSeaportName;
-        this.availableSeats = availableSeats;
-        this.bookedSeats = bookedSeats;
-        this.dateTime = dateTime;
-    }
+
 
     public String getStatus() {
         return status;
@@ -169,8 +153,8 @@ public class Trip implements Serializable {
         return DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault()).format( new Date(dateTime));
   }
 
-    public enum status{
-        PICKUP,
+    public enum Status {
+        POSITION,
         GOING_TO_DESTINATION,
         ARRIVED
     }
