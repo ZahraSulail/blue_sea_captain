@@ -21,9 +21,6 @@ public class MainActivity extends AppCompatActivity {
     TripListFragment mTripListFragment;
 
     FirebaseAuth mAuth;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
@@ -48,16 +45,17 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_log_out) {
             if (mAuth.getCurrentUser() != null) {
-
                 FirebaseAuth.getInstance().signOut();
-                finish();
                 Intent intent = new Intent( getApplicationContext(), LoginActivity.class );
                 startActivity( intent );
+                finish();
                 return true;
             }
         }
         return super.onOptionsItemSelected( item );
     }
+
+
 
 
 }

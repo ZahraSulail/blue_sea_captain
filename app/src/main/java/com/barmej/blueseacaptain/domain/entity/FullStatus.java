@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public class FullStatus implements Serializable {
 
-
     private Captain captain;
     private Trip trip;
 

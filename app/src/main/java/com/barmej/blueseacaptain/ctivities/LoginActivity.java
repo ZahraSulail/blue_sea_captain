@@ -3,7 +3,6 @@ package com.barmej.blueseacaptain.ctivities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
@@ -18,6 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText emailTextInputEditText;
     private TextInputEditText paswwordTextInputEditText;
     private MaterialButton logInButton;
-    FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +42,13 @@ public class LoginActivity extends AppCompatActivity {
         paswwordTextInputEditText = findViewById( R.id.edit_text_paswword );
         logInButton = findViewById( R.id.button_log_in );
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(firebaseUser != null){
+            fetchCaptainProfileAndLogin( firebaseUser.getUid());
+            startActivity( new Intent( getApplicationContext(), MainActivity.class ) );
+            finish();
+        }
+
 
         logInButton.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -52,6 +58,9 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         } );
+
+
+
     }
 
     private void loginClicked() {
@@ -64,17 +73,18 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        FirebaseAuth.getInstance().signInWithEmailAndPassword( emailTextInputEditText.getText().toString(), paswwordTextInputEditText.getText().toString() )
+       FirebaseAuth.getInstance().signInWithEmailAndPassword( emailTextInputEditText.getText().toString(), paswwordTextInputEditText.getText().toString() )
                 .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            Toast.makeText( LoginActivity.this, R.string.log_in_successfull, Toast.LENGTH_SHORT ).show();
                             String captainId = task.getResult().getUser().getUid();
                             fetchCaptainProfileAndLogin( captainId );
 
                         } else {
                             Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG ).show();
-                            Log.e( TAG, "onComplete: Failed=" + task.getException().getMessage() );
+
                         }
 
                     }
@@ -96,8 +106,6 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity( new Intent( getApplicationContext(), MainActivity.class ) );
                     finish();
 
-                } else {
-                    Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_SHORT ).show();
                 }
             }
         } );

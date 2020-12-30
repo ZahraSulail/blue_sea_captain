@@ -9,13 +9,15 @@ import android.widget.TextView;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
-import com.barmej.blueseacaptain.inteerface.TripCommunicationInterface;
+import com.barmej.blueseacaptain.inteerface.TripActionDelegates;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DatabaseReference;
@@ -24,10 +26,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
     public static final String INITIAL_STATUS_EXTRA = "INITIAL_STATUS_EXTRA";
+
+    /*
+     ّIntiger constant for requet location permission
+     */
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
 
     /*
       A constant for trips data fro TripListFragment
@@ -38,6 +46,13 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
       Bundle for saving mapView
      */
     private static final String MAPVIEW_BUNDLE_KEY = "mapViewBundleKey";
+
+    /*
+     Map markers
+     */
+    private Marker positionMarker;
+    private Marker destinationMarker;
+    private Marker shipLocationMarker;
 
     /*
       Devind the views required to display on this fragment
@@ -51,6 +66,11 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     private MaterialButton mStartMaterialButton;
     private MaterialButton mArrivedMaterialButton;
+
+    /*
+     TripCommunicationInterface listiner
+     */
+    TripActionDelegates tripActionDelegates;
 
     /*
      DatabaseReference object
@@ -72,15 +92,6 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
      */
     Bundle mapViewBundle;
 
-    /*
-       TripCommunicationInterface  object
-
-     */
-
-    TripCommunicationInterface tripCommunicationInterface;
-
-
-
     public static TripDetalsFragment getInstance(FullStatus status) {
         TripDetalsFragment detalsFragment = new TripDetalsFragment();
         Bundle bundle = new Bundle();
@@ -88,7 +99,6 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         detalsFragment.setArguments( bundle );
         return detalsFragment;
     }
-
 
 
     @Nullable
@@ -126,7 +136,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             getArguments back
            */
         mTrip = status.getTrip();
-        mDataTextView.setText( mTrip.getFormattedDate());
+        mDataTextView.setText( mTrip.getFormattedDate() );
         mPositionTextView.setText( mTrip.getPositionSeaPortName() );
         mDestinationTextView.setText( mTrip.getDestinationSeaportName() );
         mAvailableSeatsTextView.setText( String.valueOf( mTrip.getAvailableSeats() ) );
@@ -137,7 +147,8 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mStartMaterialButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //setStartPoint();
+                tripActionDelegates.startTrip();
+                moveToMapFragment();
             }
         } );
 
@@ -147,7 +158,8 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mArrivedMaterialButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //setDestinationPont();
+                tripActionDelegates.tripDestination();
+
             }
         } );
     }
@@ -172,10 +184,11 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mGoogleMap = googleMap;
         if (mTrip.getCurrentLat() != 0 && mTrip.getCurrentLng() != 0) {
             LatLng currentLatLng = new LatLng( mTrip.getCurrentLat(), mTrip.getCurrentLng() );
-            googleMap.addMarker( new MarkerOptions() )
+            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.boat ) ) )
                     .setPosition( currentLatLng );
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( currentLatLng, 16 );
             googleMap.moveCamera( cameraUpdate );
@@ -183,25 +196,21 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             return;
         }
 
-        if(mTrip.getPositionLat() != 0 && mTrip.getPositionLng() != 0){
-            LatLng positionLatLng = new LatLng( mTrip.getPositionLat(), mTrip.getPositionLng());
-            googleMap.addMarker( new MarkerOptions() )
+        if (mTrip.getPositionLat() != 0 && mTrip.getPositionLng() != 0) {
+            LatLng positionLatLng = new LatLng( mTrip.getPositionLat(), mTrip.getPositionLng() );
+            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.position ) ) )
                     .setPosition( positionLatLng );
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( positionLatLng, 16 );
-            googleMap.moveCamera( cameraUpdate );
 
             return;
         }
 
-        if(mTrip.getDestinationLat() != 0 && mTrip.getDestinationLng() != 0){
-            LatLng destinationLatng = new LatLng( mTrip.getDestinationLat(), mTrip.getDestinationLng());
-            googleMap.addMarker( new MarkerOptions() )
-                    .setPosition(destinationLatng );
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( destinationLatng, 16 );
-            googleMap.moveCamera( cameraUpdate );
-
+        if (mTrip.getDestinationLat() != 0 && mTrip.getDestinationLng() != 0) {
+            LatLng destinationLatng = new LatLng( mTrip.getDestinationLat(), mTrip.getDestinationLng() );
+            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.destination ) ) )
+                    .setPosition( destinationLatng );
         }
     }
+
 
     /*
       Map lifeCycle methods
@@ -236,8 +245,35 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onDestroy();
     }
 
+    /*
+     Trip Action Delegates
+     */
+    public void setTripActionDelegates(TripActionDelegates tripActionDelegates){
+        this.tripActionDelegates = tripActionDelegates;
+    }
 
+    /*
+       Tracking trip status to update trip buttons visibilities
+     */
+    public void updateWithStatus(FullStatus fullStatus){
+        String tripStatus = fullStatus.getTrip().getStatus();
+        if(tripStatus.equals( Trip.Status.AVAILABLE )){
+            mArrivedMaterialButton.setVisibility( View.GONE );
 
+        }else if(tripStatus.equals( Trip.Status.GOING_TO_DESTINATION )){
+            mStartMaterialButton.setVisibility( View.GONE );
+            mArrivedMaterialButton.setVisibility( View.GONE );
+        }
 
+    }
+
+    /*
+     Open TripTrackingMapFragment
+     */
+    private void moveToMapFragment(){
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace( R.id.layout_main, new TripTrackingMapFragment() );
+        fragmentTransaction.commit();
+    }
 
 }

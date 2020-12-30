@@ -139,10 +139,12 @@ public class TripManager {
         notifyListiner( fullStatus );
     }
 
-
+    /*
+    Stop eventListener to trip status
+     */
     public void stopListiningToStatus() {
         if (tripStatusListener != null) {
-            database.getReference().child( captain.getId() ).removeEventListener( tripStatusListener );
+            database.getReference().child( trip.getId() ).removeEventListener( tripStatusListener );
         }
         statusCallBack = null;
     }

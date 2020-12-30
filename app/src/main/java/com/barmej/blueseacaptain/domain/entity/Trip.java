@@ -154,7 +154,7 @@ public class Trip implements Serializable {
   }
 
     public enum Status {
-        POSITION,
+        AVAILABLE,
         GOING_TO_DESTINATION,
         ARRIVED
     }

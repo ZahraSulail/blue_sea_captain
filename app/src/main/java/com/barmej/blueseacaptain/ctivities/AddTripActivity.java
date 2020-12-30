@@ -12,11 +12,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddTripActivity extends AppCompatActivity {
@@ -83,19 +91,38 @@ public class AddTripActivity extends AppCompatActivity {
         }
 
         mTrip = new Trip();
-        mTrip.setStatus( Trip.Status.POSITION.name());
+        mTrip.setStatus( Trip.Status.AVAILABLE.name());
         mTrip.setPositionSeaPortName(mPositionEditText.getText().toString());
         mTrip.setDestinationSeaportName( mDestinationEditText.getText().toString());
         mTrip.setAvailableSeats( Integer.parseInt( mAvailableSeatsEditText.getText().toString()));
         mTrip.setDateTime( calendar.getTimeInMillis());
-        databaseReference.push().setValue( mTrip ).addOnSuccessListener( new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
 
-                Toast.makeText(AddTripActivity.this, R.string.trip_added, Toast.LENGTH_SHORT).show();
-                finish();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        final String date = simpleDateFormat.format( new Date(mTrip.getDateTime()) );
+        databaseReference.child( FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date ).addListenerForSingleValueEvent( new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Trip trip = snapshot.getValue(Trip.class);
+                if(trip == null) {
+                    databaseReference.child( FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date ).setValue( mTrip ).addOnSuccessListener( new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+
+                            Toast.makeText(AddTripActivity.this, R.string.trip_added, Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    } );
+                } else {
+                    Toast.makeText( AddTripActivity.this, R.string.there_is_a_trip_in_this_time, Toast.LENGTH_SHORT ).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         } );
+
 
 
     }

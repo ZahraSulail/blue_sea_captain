@@ -1,6 +1,8 @@
 package com.barmej.blueseacaptain.inteerface;
 
-public interface TripCommunicationInterface {
-    boolean tripArrived();
+public interface TripActionDelegates {
     boolean startTrip();
+    boolean tripDestination();
+
+
 }
