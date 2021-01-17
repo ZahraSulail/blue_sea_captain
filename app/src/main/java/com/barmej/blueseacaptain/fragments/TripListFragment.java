@@ -9,7 +9,7 @@ import android.widget.Button;
 
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
-import com.barmej.blueseacaptain.ctivities.AddTripActivity;
+import com.barmej.blueseacaptain.ctivities.SetTripLocationActivity;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.barmej.blueseacaptain.inteerface.OnTripClickListiner;
@@ -93,7 +93,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         mAddButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent( getContext(), AddTripActivity.class );
+                Intent intent = new Intent( getContext(), SetTripLocationActivity.class );
                 startActivity( intent );
 
             }

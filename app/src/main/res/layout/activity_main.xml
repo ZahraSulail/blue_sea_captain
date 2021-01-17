@@ -6,29 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".ctivities.MainActivity"
     android:id="@+id/layout_main">
-    <!-- map fragment
-       <fragment
-           android:layout_width="match_parent"
-           android:layout_height="match_parent"
-           android:id="@+id/map_container"
-           android:name="com.barmej.blueseacaptain.fragments.TripTrackingMapFragment"
-           />
-           -->
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <fragment
+    <fragment
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/trip_list_container"
             android:name="com.barmej.blueseacaptain.fragments.TripListFragment"/>
-
-    </LinearLayout>
-
-
-
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

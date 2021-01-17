@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
@@ -130,14 +129,14 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.getMapAsync( this );
 
         FullStatus status = (FullStatus) getArguments().getSerializable( INITIAL_STATUS_EXTRA );
-        //updateStartAndDestinationPoints( status );
+        updateWithStatus( status );
 
           /*
             getArguments back
            */
         mTrip = status.getTrip();
         mDataTextView.setText( mTrip.getFormattedDate() );
-        mPositionTextView.setText( mTrip.getPositionSeaPortName() );
+        mPositionTextView.setText( mTrip.getStartPortName() );
         mDestinationTextView.setText( mTrip.getDestinationSeaportName() );
         mAvailableSeatsTextView.setText( String.valueOf( mTrip.getAvailableSeats() ) );
         mBookedSeatsTextView.setText( String.valueOf( mTrip.getBookedSeats() ) );
@@ -148,7 +147,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 tripActionDelegates.startTrip();
-                moveToMapFragment();
+
             }
         } );
 
@@ -185,7 +184,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        mGoogleMap = googleMap;
+        this.mGoogleMap = googleMap;
         if (mTrip.getCurrentLat() != 0 && mTrip.getCurrentLng() != 0) {
             LatLng currentLatLng = new LatLng( mTrip.getCurrentLat(), mTrip.getCurrentLng() );
             googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.boat ) ) )
@@ -193,21 +192,20 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( currentLatLng, 16 );
             googleMap.moveCamera( cameraUpdate );
 
-            return;
+
         }
 
-        if (mTrip.getPositionLat() != 0 && mTrip.getPositionLng() != 0) {
-            LatLng positionLatLng = new LatLng( mTrip.getPositionLat(), mTrip.getPositionLng() );
-            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.position ) ) )
-                    .setPosition( positionLatLng );
+        if (mTrip.getStartLat() != 0 && mTrip.getStartLng() != 0) {
+            LatLng positionLatLng = new LatLng( mTrip.getStartLat(), mTrip.getStartLng() );
+            googleMap.addMarker( new MarkerOptions().position( positionLatLng ).icon( BitmapDescriptorFactory.fromResource( R.drawable.position ) ) );
 
-            return;
+
         }
 
         if (mTrip.getDestinationLat() != 0 && mTrip.getDestinationLng() != 0) {
+
             LatLng destinationLatng = new LatLng( mTrip.getDestinationLat(), mTrip.getDestinationLng() );
-            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.destination ) ) )
-                    .setPosition( destinationLatng );
+            googleMap.addMarker( new MarkerOptions().position( destinationLatng ).icon( BitmapDescriptorFactory.fromResource( R.drawable.destination ) ) );
         }
     }
 
@@ -247,7 +245,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
     /*
      Trip Action Delegates
-     */
+
     public void setTripActionDelegates(TripActionDelegates tripActionDelegates){
         this.tripActionDelegates = tripActionDelegates;
     }
@@ -262,18 +260,9 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
         }else if(tripStatus.equals( Trip.Status.GOING_TO_DESTINATION )){
             mStartMaterialButton.setVisibility( View.GONE );
-            mArrivedMaterialButton.setVisibility( View.GONE );
+            mArrivedMaterialButton.setVisibility( View.VISIBLE );
         }
 
-    }
-
-    /*
-     Open TripTrackingMapFragment
-     */
-    private void moveToMapFragment(){
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace( R.id.layout_main, new TripTrackingMapFragment() );
-        fragmentTransaction.commit();
     }
 
 }

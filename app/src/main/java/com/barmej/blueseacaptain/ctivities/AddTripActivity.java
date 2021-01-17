@@ -1,13 +1,16 @@
 package com.barmej.blueseacaptain.ctivities;
 
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
+import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.domain.entity.Trip;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -29,7 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class AddTripActivity extends AppCompatActivity {
 
-
     private TextInputLayout mPositionTextInputLayout;
     private TextInputLayout mDestinationTextInputLayout;
     private TextInputLayout mAvailableSeatsTextIputLayout;
@@ -38,8 +40,10 @@ public class AddTripActivity extends AppCompatActivity {
     private TextInputEditText mAvailableSeatsEditText;
     private MaterialButton mAddTripButton;
     private DatePicker mDatePicker;
-    Trip mTrip;
-    DatabaseReference databaseReference;
+    private Trip mTrip;
+    private DatabaseReference databaseReference;
+    private LatLng mStartPointSelectedLatng;
+    private LatLng mDestinationSelectedLatng;
 
 
     @Override
@@ -47,16 +51,23 @@ public class AddTripActivity extends AppCompatActivity {
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.activity_add_trip );
+
+        mStartPointSelectedLatng = getIntent().getParcelableExtra( Constants.START_POINT_LATNG);
+        mDestinationSelectedLatng = getIntent().getParcelableExtra(Constants.DESTINATION_LATNG);
+
+        System.out.println(mStartPointSelectedLatng.latitude + "==========" + mStartPointSelectedLatng.longitude);
         mPositionTextInputLayout = findViewById( R.id.text_input_layout_position );
         mPositionEditText = findViewById( R.id.text_input_edit_text_position );
-        mDestinationTextInputLayout = findViewById( R.id.text_input_layout_destination);
+        mDestinationTextInputLayout = findViewById( R.id.text_input_layout_destination );
         mDestinationEditText = findViewById( R.id.text_input_edit_text_destination );
         mAvailableSeatsTextIputLayout = findViewById( R.id.text_input_layout_available_seats );
         mAvailableSeatsEditText = findViewById( R.id.text_input_edit_text_avalable_seats );
         mAddTripButton = findViewById( R.id.button_add );
         mDatePicker = findViewById( R.id.date_picker );
 
-        databaseReference = FirebaseDatabase.getInstance().getReference().child( "Trip_Details");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child( "Trip_Details" );
+
+        mTrip = new Trip();
 
         mAddTripButton.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -64,18 +75,14 @@ public class AddTripActivity extends AppCompatActivity {
                 addTripToFirebase();
             }
         } );
+
     }
 
     private void addTripToFirebase(){
+
         mPositionTextInputLayout.setError( null );
         mDestinationTextInputLayout.setError( null );
         mAvailableSeatsTextIputLayout.setError( null );
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set( Calendar.DAY_OF_MONTH, mDatePicker.getDayOfMonth());
-        calendar.set( Calendar.MONTH, mDatePicker.getMonth() );
-        calendar.set(Calendar.YEAR, mDatePicker.getYear());
-
 
         if(TextUtils.isEmpty( mPositionEditText.getText())){
             mPositionTextInputLayout.setError( getString( R.string.error_msg_position));
@@ -90,12 +97,30 @@ public class AddTripActivity extends AppCompatActivity {
             return;
         }
 
-        mTrip = new Trip();
+        addNewTrip();
+    }
+
+/*
+ Add New trip inforamtion to firebase
+ */
+    public void addNewTrip() {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set( Calendar.DAY_OF_MONTH, mDatePicker.getDayOfMonth());
+        calendar.set( Calendar.MONTH, mDatePicker.getMonth() );
+        calendar.set(Calendar.YEAR, mDatePicker.getYear());
+
         mTrip.setStatus( Trip.Status.AVAILABLE.name());
-        mTrip.setPositionSeaPortName(mPositionEditText.getText().toString());
+        mTrip.setStartPortName(mPositionEditText.getText().toString());
         mTrip.setDestinationSeaportName( mDestinationEditText.getText().toString());
         mTrip.setAvailableSeats( Integer.parseInt( mAvailableSeatsEditText.getText().toString()));
         mTrip.setDateTime( calendar.getTimeInMillis());
+
+        mTrip.setStartLat( mStartPointSelectedLatng.latitude );
+        mTrip.setStartLng( mStartPointSelectedLatng.longitude );
+
+        mTrip.setDestinationLat( mDestinationSelectedLatng.latitude );
+        mTrip.setDestinationLng( mDestinationSelectedLatng.longitude );
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         final String date = simpleDateFormat.format( new Date(mTrip.getDateTime()) );
@@ -122,10 +147,5 @@ public class AddTripActivity extends AppCompatActivity {
 
             }
         } );
-
-
-
     }
-
-
 }

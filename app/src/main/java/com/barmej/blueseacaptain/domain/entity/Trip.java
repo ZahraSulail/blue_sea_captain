@@ -11,13 +11,13 @@ public class Trip implements Serializable {
     private String id;
     private String captainId;
     private String userId;
-    private double positionLat;
-    private double positionLng;
+    private double startLat;
+    private double startLng;
     private double destinationLat;
     private double destinationLng;
     private double currentLat;
     private double currentLng;
-    private String positionSeaPortName;
+    private String startPortName;
     private String destinationSeaportName;
     private int availableSeats;
     private int bookedSeats;
@@ -61,20 +61,20 @@ public class Trip implements Serializable {
         this.userId = userId;
     }
 
-    public double getPositionLat() {
-        return positionLat;
+    public double getStartLat() {
+        return startLat;
     }
 
-    public void setPositionLat(double positionLat) {
-        this.positionLat = positionLat;
+    public void setStartLat(double latitude) {
+        this.startLat = latitude;
     }
 
-    public double getPositionLng() {
-        return positionLng;
+    public double getStartLng() {
+        return startLng;
     }
 
-    public void setPositionLng(double positionLng) {
-        this.positionLng = positionLng;
+    public void setStartLng(double startLng) {
+        this.startLng = startLng;
     }
 
     public double getDestinationLat() {
@@ -109,12 +109,12 @@ public class Trip implements Serializable {
         this.currentLng = currentLng;
     }
 
-    public String getPositionSeaPortName() {
-        return positionSeaPortName;
+    public String getStartPortName() {
+        return startPortName;
     }
 
-    public void setPositionSeaPortName(String positionSeaPortName) {
-        this.positionSeaPortName = positionSeaPortName;
+    public void setStartPortName(String startPortName) {
+        this.startPortName = startPortName;
     }
 
     public String getDestinationSeaportName() {

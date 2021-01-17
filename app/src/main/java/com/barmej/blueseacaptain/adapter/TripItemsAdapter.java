@@ -66,7 +66,7 @@ public class TripItemsAdapter extends RecyclerView.Adapter<TripItemsAdapter.Trip
 
         public void bind(Trip trip){
             mDataTextView.setText( trip.getFormattedDate());
-            mPositinTextView.setText(trip.getPositionSeaPortName());
+            mPositinTextView.setText(trip.getStartPortName());
             mDestinationTextView.setText( trip.getDestinationSeaportName());
             mAvailableSeatsTextView.setText( String.valueOf( trip.getAvailableSeats()));
             mBookedSeatsTextView.setText( String.valueOf( trip.getBookedSeats()));
