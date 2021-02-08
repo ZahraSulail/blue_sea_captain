@@ -1,0 +1,18 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ctivities.TripInfoActivity"
+    android:id="@+id/layout_main">
+
+<fragment
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/map_container"
+    android:name="com.barmej.blueseacaptain.fragments.MapFragment"/>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

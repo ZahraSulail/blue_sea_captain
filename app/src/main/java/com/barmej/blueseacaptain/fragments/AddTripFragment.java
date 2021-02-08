@@ -1,14 +1,21 @@
-package com.barmej.blueseacaptain.ctivities;
+package com.barmej.blueseacaptain.fragments;
 
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
+import com.barmej.blueseacaptain.ctivities.MainActivity;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,15 +34,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class AddTripActivity extends AppCompatActivity {
+public class AddTripFragment extends Fragment {
 
-    private TextInputLayout mPositionTextInputLayout;
+    private TextInputLayout mStartTextInputLayout;
     private TextInputLayout mDestinationTextInputLayout;
     private TextInputLayout mAvailableSeatsTextIputLayout;
-    private TextInputEditText mPositionEditText;
+    private TextInputEditText mStartEditText;
     private TextInputEditText mDestinationEditText;
     private TextInputEditText mAvailableSeatsEditText;
     private MaterialButton mAddTripButton;
@@ -45,28 +50,36 @@ public class AddTripActivity extends AppCompatActivity {
     private LatLng mStartPointSelectedLatng;
     private LatLng mDestinationSelectedLatng;
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate( R.layout.fragment_add_trip, container, false );
+
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate( savedInstanceState );
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated( view, savedInstanceState );
 
-        setContentView( R.layout.activity_add_trip );
+        Bundle bundle = this.getArguments();
 
-        mStartPointSelectedLatng = getIntent().getParcelableExtra( Constants.START_POINT_LATNG);
-        mDestinationSelectedLatng = getIntent().getParcelableExtra(Constants.DESTINATION_LATNG);
+        mStartPointSelectedLatng = bundle.getParcelable( Constants.START_POINT_LATNG );
+        mDestinationSelectedLatng = bundle.getParcelable( Constants.DESTINATION_LATNG );
 
-        System.out.println(mStartPointSelectedLatng.latitude + "==========" + mStartPointSelectedLatng.longitude);
-        mPositionTextInputLayout = findViewById( R.id.text_input_layout_position );
-        mPositionEditText = findViewById( R.id.text_input_edit_text_position );
-        mDestinationTextInputLayout = findViewById( R.id.text_input_layout_destination );
-        mDestinationEditText = findViewById( R.id.text_input_edit_text_destination );
-        mAvailableSeatsTextIputLayout = findViewById( R.id.text_input_layout_available_seats );
-        mAvailableSeatsEditText = findViewById( R.id.text_input_edit_text_avalable_seats );
-        mAddTripButton = findViewById( R.id.button_add );
-        mDatePicker = findViewById( R.id.date_picker );
+
+        // mStartPointSelectedLatng = getIntent().getParcelableExtra( Constants.START_POINT_LATNG);
+        //mDestinationSelectedLatng = getIntent().getParcelableExtra(Constants.DESTINATION_LATNG);
+
+        mStartTextInputLayout = view.findViewById( R.id.text_input_layout_start);
+        mStartEditText = view.findViewById( R.id.text_input_edit_text_start );
+        mDestinationTextInputLayout = view.findViewById( R.id.text_input_layout_destination );
+        mDestinationEditText = view.findViewById( R.id.text_input_edit_text_destination );
+        mAvailableSeatsTextIputLayout = view.findViewById( R.id.text_input_layout_available_seats );
+        mAvailableSeatsEditText = view.findViewById( R.id.text_input_edit_text_avalable_seats );
+        mAddTripButton = view.findViewById( R.id.button_add );
+        mDatePicker = view.findViewById( R.id.date_picker );
 
         databaseReference = FirebaseDatabase.getInstance().getReference().child( "Trip_Details" );
-
         mTrip = new Trip();
 
         mAddTripButton.setOnClickListener( new View.OnClickListener() {
@@ -76,16 +89,17 @@ public class AddTripActivity extends AppCompatActivity {
             }
         } );
 
+
     }
 
     private void addTripToFirebase(){
 
-        mPositionTextInputLayout.setError( null );
+        mStartTextInputLayout.setError( null );
         mDestinationTextInputLayout.setError( null );
         mAvailableSeatsTextIputLayout.setError( null );
 
-        if(TextUtils.isEmpty( mPositionEditText.getText())){
-            mPositionTextInputLayout.setError( getString( R.string.error_msg_position));
+        if(TextUtils.isEmpty( mStartEditText.getText())){
+            mStartTextInputLayout.setError( getString( R.string.error_msg_position));
             return;
         }
         if(TextUtils.isEmpty(mDestinationEditText.getText())){
@@ -100,7 +114,7 @@ public class AddTripActivity extends AppCompatActivity {
         addNewTrip();
     }
 
-/*
+    /*
  Add New trip inforamtion to firebase
  */
     public void addNewTrip() {
@@ -111,7 +125,7 @@ public class AddTripActivity extends AppCompatActivity {
         calendar.set(Calendar.YEAR, mDatePicker.getYear());
 
         mTrip.setStatus( Trip.Status.AVAILABLE.name());
-        mTrip.setStartPortName(mPositionEditText.getText().toString());
+        mTrip.setStartPortName(mStartEditText.getText().toString());
         mTrip.setDestinationSeaportName( mDestinationEditText.getText().toString());
         mTrip.setAvailableSeats( Integer.parseInt( mAvailableSeatsEditText.getText().toString()));
         mTrip.setDateTime( calendar.getTimeInMillis());
@@ -132,13 +146,13 @@ public class AddTripActivity extends AppCompatActivity {
                     databaseReference.child( FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date ).setValue( mTrip ).addOnSuccessListener( new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-
-                            Toast.makeText(AddTripActivity.this, R.string.trip_added, Toast.LENGTH_SHORT).show();
-                            finish();
+                            Toast.makeText( getContext(), R.string.trip_added, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent (getContext(), MainActivity.class );
+                            startActivity( intent );
                         }
                     } );
                 } else {
-                    Toast.makeText( AddTripActivity.this, R.string.there_is_a_trip_in_this_time, Toast.LENGTH_SHORT ).show();
+                    Toast.makeText( getContext(), R.string.there_is_a_trip_in_this_time, Toast.LENGTH_SHORT ).show();
                 }
             }
 

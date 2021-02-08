@@ -15,7 +15,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ctivities.SetTripLocationActivity"></activity>
+        <activity android:name=".ctivities.TripInfoActivity"
+             android:parentActivityName=".ctivities.MainActivity">
+
+        </activity>
         <activity
             android:name=".ctivities.LoginActivity"
             android:parentActivityName=".ctivities.MainActivity">
@@ -25,17 +28,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ctivities.AddTripActivity"
-            android:parentActivityName=".ctivities.MainActivity" />
-        <activity android:name=".ctivities.MainActivity"></activity>
+
+        <activity android:name=".ctivities.MainActivity">
+
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBoq1acqhj9oFH_3IBvYFXFGsGVMy7GKDg" />
+            android:value="AIzaSyCA3w0L-Z8W1pHIngnq01tTGiHW5jWD6U0" />
     </application>
 
 </manifest>

@@ -1,7 +1,6 @@
 package com.barmej.blueseacaptain.fragments;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,9 +10,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
-import com.barmej.blueseacaptain.ctivities.AddTripActivity;
 import com.barmej.blueseacaptain.inteerface.PermissionFailListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -29,16 +33,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    private static final int REQUEST_LOCATION_PERMISSION = 1;
     private GoogleMap mMap;
     private Marker startPointMarker;
     private Marker destinationMarker;
@@ -84,12 +81,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View v) {
                 if (mDestinationLatng != null) {
                     setDestinationMarker( mDestinationLatng );
-                    Intent intent = new Intent( getContext(), AddTripActivity.class );
-                    intent.putExtra( Constants.START_POINT_LATNG, mStartPointLatng );
-                    intent.putExtra(Constants.DESTINATION_LATNG, mDestinationLatng );
-                    getActivity().finish();
-                    startActivity( intent );
-                    //TODO: move to AddNewTripActivity
+                    //Intent intent = new Intent( getContext(), AddTripActivity.class );
+                    //intent.putExtra( Constants.START_POINT_LATNG, mStartPointLatng );
+                    //intent.putExtra(Constants.DESTINATION_LATNG, mDestinationLatng );
+                    //getActivity().finish();
+                    //startActivity( intent );
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable( Constants.START_POINT_LATNG, mStartPointLatng );
+                    bundle.putParcelable( Constants.DESTINATION_LATNG, mDestinationLatng );
+
+                    AddTripFragment addTripFragment = new AddTripFragment();
+                    addTripFragment.setArguments( bundle );
+                    if (getFragmentManager() != null) {
+                        getFragmentManager().beginTransaction().replace( R.id.map_container, addTripFragment )
+                                .commit();
+                        selectDestinationPointButtont.setVisibility( View.GONE );
+                    }
+
                 }else{
                     Toast.makeText( getContext(), R.string.add_destination_point, Toast.LENGTH_SHORT ).show();
                 }
@@ -104,7 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission( getActivity(), Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_DENIED) {
             setUpUserLocation();
         } else {
-            ActivityCompat.requestPermissions( getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION );
+            ActivityCompat.requestPermissions( getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_LOCATION_PERMISSION );
 
         }
     }
@@ -129,7 +137,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+        if (requestCode == Constants.REQUEST_LOCATION_PERMISSION) {
             if (permissions.length == 1 & grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setUpUserLocation();
             } else {
