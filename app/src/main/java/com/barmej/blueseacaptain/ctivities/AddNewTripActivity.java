@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.fragments.MapFragment;
 
-public class TripInfoActivity extends AppCompatActivity {
+public class AddNewTripActivity extends AppCompatActivity {
 
     private MapFragment mapsContainerFragment;
 

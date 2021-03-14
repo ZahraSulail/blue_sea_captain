@@ -1,24 +1,25 @@
 package com.barmej.blueseacaptain.domain;
 
+import androidx.annotation.NonNull;
+
 import com.barmej.blueseacaptain.domain.entity.Captain;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.barmej.blueseacaptain.inteerface.CallBack;
 import com.barmej.blueseacaptain.inteerface.StatusCallBack;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import androidx.annotation.NonNull;
 
 public class TripManager {
 
     /*
      Reference costatnts of trips and captains
      */
-    private static final String TRIP_REF_PATH = "trips";
-    private static final String CAPTAINS_REF_PATH = "captains";
+    private static final String TRIP_REF_PATH = "Trip_Details";
+    public static final String CAPTAINS_REF_PATH = "captains";
     /*
       Inastance reference of TripManager
      */
@@ -61,12 +62,12 @@ public class TripManager {
         database.getReference( CAPTAINS_REF_PATH ).child( captainId ).addListenerForSingleValueEvent( new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //System.out.println("captain: " + snapshot.toString());
                 captain = snapshot.getValue( Captain.class );
-                if (captain != null) {
-                    callback.onComplete( true );
-
+                if(captain != null){
+                        callback.onComplete( true );
                 } else {
-                    callback.onComplete( false );
+                        callback.onComplete( false );
                 }
             }
 
@@ -78,20 +79,20 @@ public class TripManager {
     }
 
 
-    public void startListiningForStatus(StatusCallBack statusCallBack) {
+    public void getTripAndNotifyStatuss(StatusCallBack statusCallBack) {
         this.statusCallBack = statusCallBack;
+        if(captain.getAssignedTrip() == null) return;
         tripStatusListener = database.getReference( TRIP_REF_PATH ).child( captain.getAssignedTrip() )
                 .addValueEventListener( new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        //System.out.println("Trip_Details: " + snapshot.toString());
                         trip = snapshot.getValue( Trip.class );
-
                         if (trip != null) {
                             FullStatus fullStatus = new FullStatus();
                             fullStatus.setCaptain( captain );
                             fullStatus.setTrip( trip );
                             notifyListiner( fullStatus );
-
                         }
                     }
 
@@ -129,7 +130,7 @@ public class TripManager {
     public void updateToArrivedToDestination() {
         trip.setStatus( Trip.Status.ARRIVED.name() );
         database.getReference( TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
-        captain.setStatus( Captain.status.AVAILABEL.name() );
+        captain.setStatus( Captain.Status.AVAILABEL.name() );
         captain.setAssignedTrip( null );
         trip = null;
 
@@ -149,4 +150,8 @@ public class TripManager {
         statusCallBack = null;
     }
 
+    public void assignTrip(String tripId, OnSuccessListener onSuccessListener) {
+        captain.setAssignedTrip(tripId);
+        database.getReference().child(CAPTAINS_REF_PATH).child(captain.getId()).setValue(captain).addOnSuccessListener(onSuccessListener);
+    }
 }

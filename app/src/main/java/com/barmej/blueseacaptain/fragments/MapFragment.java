@@ -39,11 +39,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private Marker startPointMarker;
     private Marker destinationMarker;
+    private Marker tripMarker;
     private PermissionFailListener permissionFailListener;
     private Button selectStartPointButton;
     private Button selectDestinationPointButtont;
     private LatLng mStartPointLatng;
     private LatLng mDestinationLatng;
+    private LatLng tripLalng;
 
     @Nullable
     @Override
@@ -81,15 +83,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View v) {
                 if (mDestinationLatng != null) {
                     setDestinationMarker( mDestinationLatng );
-                    //Intent intent = new Intent( getContext(), AddTripActivity.class );
-                    //intent.putExtra( Constants.START_POINT_LATNG, mStartPointLatng );
-                    //intent.putExtra(Constants.DESTINATION_LATNG, mDestinationLatng );
-                    //getActivity().finish();
-                    //startActivity( intent );
                     Bundle bundle = new Bundle();
                     bundle.putParcelable( Constants.START_POINT_LATNG, mStartPointLatng );
                     bundle.putParcelable( Constants.DESTINATION_LATNG, mDestinationLatng );
-
                     AddTripFragment addTripFragment = new AddTripFragment();
                     addTripFragment.setArguments( bundle );
                     if (getFragmentManager() != null) {
@@ -227,17 +223,32 @@ Update user location method
             destinationMarker.setPosition( target );
         }
     }
+    public void setTripMarker(LatLng target){
+
+        this.tripLalng = target;
+        if(mMap == null) return;
+        if(tripMarker == null){
+            BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource((R.drawable.boat));
+            MarkerOptions options = new MarkerOptions();
+            options.icon(descriptor);
+            options.position(target);
+            tripMarker = mMap.addMarker(options);
+        }else{
+            tripMarker.setPosition(target);
+        }
+
+    }
 
     /*
      Clear map and reset markers status
      */
-   /* public void reset() {
+    public void reset() {
         if (mMap == null) return;
         mMap.clear();
         startPointMarker = null;
         destinationMarker = null;
         setUpUserLocation();
-    }*/
+    }
 
 
 

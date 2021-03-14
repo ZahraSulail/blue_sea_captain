@@ -3,9 +3,10 @@ package com.barmej.blueseacaptain.domain.entity;
 import java.io.Serializable;
 
 public class Captain implements Serializable {
+
     private String id;
     private String status;
-    private String captainName;
+    private String name;
     private String assignedTrip;
 
 
@@ -29,6 +30,14 @@ public class Captain implements Serializable {
         this.status = status;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public String getAssignedTrip() {
         return assignedTrip;
     }
@@ -38,8 +47,8 @@ public class Captain implements Serializable {
     }
 
 
-    public enum status{
+    public enum Status{
         AVAILABEL,
-        ON_TRIP
+        ON_TRIP,
     }
 }

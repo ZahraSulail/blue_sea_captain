@@ -1,15 +1,33 @@
 package com.barmej.blueseacaptain.fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
+import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
+import com.barmej.blueseacaptain.domain.TripManager;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
-import com.barmej.blueseacaptain.inteerface.TripActionDelegates;
+import com.barmej.blueseacaptain.inteerface.StatusCallBack;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,11 +39,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DatabaseReference;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
@@ -35,11 +49,6 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
      ّIntiger constant for requet location permission
      */
     private static final int REQUEST_LOCATION_PERMISSION = 1;
-
-    /*
-      A constant for trips data fro TripListFragment
-     */
-    public static final String TRIP_DATA = "trip_data";
 
     /*
       Bundle for saving mapView
@@ -66,10 +75,9 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     private MaterialButton mStartMaterialButton;
     private MaterialButton mArrivedMaterialButton;
 
-    /*
-     TripCommunicationInterface listiner
-     */
-    TripActionDelegates tripActionDelegates;
+
+    private LocationCallback locationCallback;
+    private FusedLocationProviderClient locationClient;
 
     /*
      DatabaseReference object
@@ -91,6 +99,23 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
      */
     Bundle mapViewBundle;
 
+    /*
+    MapFragment reference
+     */
+    MapFragment mapFragment;
+
+    /*
+     Trip latlng to get trip lattued and la
+     */
+    private LatLng tripLatlng;
+
+    FullStatus status;
+
+    private Marker marker;
+
+    /*
+     put serializable arguments to TripDetailsFragment
+     */
     public static TripDetalsFragment getInstance(FullStatus status) {
         TripDetalsFragment detalsFragment = new TripDetalsFragment();
         Bundle bundle = new Bundle();
@@ -99,6 +124,13 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         return detalsFragment;
     }
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+    }
 
     @Nullable
     @Override
@@ -128,8 +160,8 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate( mapViewBundle );
         mMapView.getMapAsync( this );
 
-        FullStatus status = (FullStatus) getArguments().getSerializable( INITIAL_STATUS_EXTRA );
-        updateWithStatus( status );
+        status = (FullStatus) getArguments().getSerializable( INITIAL_STATUS_EXTRA );
+
 
           /*
             getArguments back
@@ -146,7 +178,18 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mStartMaterialButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tripActionDelegates.startTrip();
+
+                TripManager.getInstance().assignTrip(mTrip.getId(), o -> TripManager.getInstance().getTripAndNotifyStatuss(new StatusCallBack() {
+                    @Override
+                    public void onUpdate(FullStatus fullStatus1) {
+                        if (mTrip.getCurrentLat() != 0 && mTrip.getCurrentLng() != 0) {
+                            LatLng currentLatLng = new LatLng( mTrip.getCurrentLat(), mTrip.getCurrentLng() );
+                            marker.setPosition(currentLatLng);
+                        }
+                    }
+                }));
+
+                startTrip(status);
 
             }
         } );
@@ -157,7 +200,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mArrivedMaterialButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tripActionDelegates.tripDestination();
+            TripManager.getInstance().updateToArrivedToDestination();
 
             }
         } );
@@ -186,13 +229,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
         this.mGoogleMap = googleMap;
         if (mTrip.getCurrentLat() != 0 && mTrip.getCurrentLng() != 0) {
-            LatLng currentLatLng = new LatLng( mTrip.getCurrentLat(), mTrip.getCurrentLng() );
-            googleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.boat ) ) )
-                    .setPosition( currentLatLng );
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( currentLatLng, 16 );
-            googleMap.moveCamera( cameraUpdate );
-
-
+           createOrUpdateMarker(mTrip.getCurrentLat(), mTrip.getCurrentLng());
         }
 
         if (mTrip.getStartLat() != 0 && mTrip.getStartLng() != 0) {
@@ -209,6 +246,17 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private void createOrUpdateMarker(double currentLat, double currentLng) {
+        LatLng currentLatLng = new LatLng( currentLat, currentLng );
+        if(marker == null) {
+            marker = mGoogleMap.addMarker( new MarkerOptions().icon( BitmapDescriptorFactory.fromResource( R.drawable.boat ) ).position(currentLatLng) );
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom( currentLatLng, 12 );
+            mGoogleMap.moveCamera( cameraUpdate );
+        } else {
+            marker.setPosition(currentLatLng);
+        }
+    }
+
 
     /*
       Map lifeCycle methods
@@ -217,6 +265,15 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     public void onStart() {
         super.onStart();
         mMapView.onStart();
+
+        TripManager.getInstance().getTripAndNotifyStatuss(new StatusCallBack() {
+            @Override
+            public void onUpdate(FullStatus fullStatus) {
+                if (mTrip.getCurrentLat() != 0 && mTrip.getCurrentLng() != 0) {
+                    createOrUpdateMarker(mTrip.getCurrentLat(), mTrip.getCurrentLng());
+                }
+            }
+        });
     }
 
     @Override
@@ -235,6 +292,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     public void onStop() {
         super.onStop();
         mMapView.onStop();
+        TripManager.getInstance().stopListiningToStatus();
     }
 
     @Override
@@ -243,26 +301,69 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onDestroy();
     }
 
-    /*
-     Trip Action Delegates
+    public void startTrip( FullStatus fullStatus) {
 
-    public void setTripActionDelegates(TripActionDelegates tripActionDelegates){
-        this.tripActionDelegates = tripActionDelegates;
-    }
+        if(mTrip != null) {
 
-    /*
-       Tracking trip status to update trip buttons visibilities
-     */
-    public void updateWithStatus(FullStatus fullStatus){
-        String tripStatus = fullStatus.getTrip().getStatus();
-        if(tripStatus.equals( Trip.Status.AVAILABLE )){
-            mArrivedMaterialButton.setVisibility( View.GONE );
+            mStartMaterialButton.setVisibility(View.GONE);
+            mArrivedMaterialButton.setVisibility(View.VISIBLE);
 
-        }else if(tripStatus.equals( Trip.Status.GOING_TO_DESTINATION )){
-            mStartMaterialButton.setVisibility( View.GONE );
-            mArrivedMaterialButton.setVisibility( View.VISIBLE );
+
+            if (locationCallback == null) {
+
+                locationClient = LocationServices.getFusedLocationProviderClient(getContext() );
+
+                locationCallback = new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        super.onLocationResult( locationResult );
+
+                        Location lastLocation = locationResult.getLastLocation();
+
+                        if(lastLocation != null) {
+
+                            createOrUpdateMarker(lastLocation.getLatitude(), lastLocation.getLongitude());
+                            TripManager.getInstance()
+                                   .updateCurrentLocation(lastLocation.getLatitude(), lastLocation.getLongitude());
+
+                        }
+
+                    }
+                };
+
+                LocationRequest locationRequest = new LocationRequest();
+                locationRequest.setFastestInterval(5000);
+                locationRequest.setInterval(2000);
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+                if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION )
+                        == PackageManager.PERMISSION_GRANTED) {
+                    locationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                } else {
+                    ActivityCompat.requestPermissions( getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_LOCATION_PERMISSION );
+                }
+
+            }
+
         }
 
     }
 
+    //TODO: define onPermission result ..
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == Constants.REQUEST_LOCATION_PERMISSION) {
+            if (permissions.length == 1 & grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startTrip(status);
+            } else {
+                Toast.makeText(getContext(), R.string.permission_required, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onRequestPermissionsResult( requestCode, permissions, grantResults );
+        }
+    }
+
 }
+
+

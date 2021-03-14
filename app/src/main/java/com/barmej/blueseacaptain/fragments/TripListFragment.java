@@ -7,9 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
-import com.barmej.blueseacaptain.ctivities.TripInfoActivity;
+import com.barmej.blueseacaptain.ctivities.AddNewTripActivity;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.barmej.blueseacaptain.inteerface.OnTripClickListiner;
@@ -19,14 +27,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class TripListFragment extends Fragment implements OnTripClickListiner {
 
@@ -93,7 +93,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         mAddButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent( getContext(), TripInfoActivity.class );
+                Intent intent = new Intent( getContext(), AddNewTripActivity.class );
                 startActivity( intent );
 
             }

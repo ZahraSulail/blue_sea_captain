@@ -6,12 +6,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.fragments.TripListFragment;
 import com.google.firebase.auth.FirebaseAuth;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected( item );
     }
-
-
-
 
 }
 

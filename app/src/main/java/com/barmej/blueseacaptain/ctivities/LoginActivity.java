@@ -5,7 +5,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.domain.TripManager;
@@ -19,9 +23,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "EmailPassword";
     private TextInputLayout emailTextInputLayout;
@@ -29,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText emailTextInputEditText;
     private TextInputEditText paswwordTextInputEditText;
     private MaterialButton logInButton;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -41,21 +43,21 @@ public class LoginActivity extends AppCompatActivity {
         emailTextInputEditText = findViewById( R.id.edit_text_email );
         paswwordTextInputEditText = findViewById( R.id.edit_text_paswword );
         logInButton = findViewById( R.id.button_log_in );
+        progressBar = findViewById(R.id.progress_bar);
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if(firebaseUser != null){
+             hideForm(true);
             fetchCaptainProfileAndLogin( firebaseUser.getUid());
-            startActivity( new Intent( getApplicationContext(), MainActivity.class ) );
-            finish();
         }
+
+
 
 
         logInButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginClicked();
-                startActivity( new Intent( getApplicationContext(), MainActivity.class ) );
-                finish();
             }
         } );
 
@@ -73,20 +75,20 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        hideForm(true);
+
        FirebaseAuth.getInstance().signInWithEmailAndPassword( emailTextInputEditText.getText().toString(), paswwordTextInputEditText.getText().toString() )
                 .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText( LoginActivity.this, R.string.log_in_successfull, Toast.LENGTH_SHORT ).show();
+
                             String captainId = task.getResult().getUser().getUid();
                             fetchCaptainProfileAndLogin( captainId );
-
                         } else {
+                            hideForm(false);
                             Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG ).show();
-
                         }
-
                     }
                 } );
 
@@ -103,13 +105,34 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(boolean isSeccessful) {
                 if (isSeccessful) {
-                    startActivity( new Intent( getApplicationContext(), MainActivity.class ) );
+                    Toast.makeText( LoginActivity.this, R.string.log_in_successfull, Toast.LENGTH_SHORT ).show();
+                    startActivity( new Intent( LoginActivity.this, MainActivity.class ) );
                     finish();
-
+                } else {
+                    Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG ).show();
+                    hideForm(false);
                 }
             }
         } );
 
+    }
+
+    private void hideForm(boolean hide){
+        if(hide){
+            progressBar.setVisibility(View.VISIBLE);
+            emailTextInputLayout.setVisibility(View.GONE);
+            emailTextInputEditText.setVisibility(View.GONE);
+            passwordTextInputLayout.setVisibility(View.GONE);
+            paswwordTextInputEditText.setVisibility(View.GONE);
+            logInButton.setVisibility(View.GONE);
+        }else{
+            progressBar.setVisibility(View.GONE);
+            emailTextInputLayout.setVisibility(View.VISIBLE);
+            emailTextInputEditText.setVisibility(View.VISIBLE);
+            passwordTextInputLayout.setVisibility(View.VISIBLE);
+            paswwordTextInputEditText.setVisibility(View.VISIBLE);
+            logInButton.setVisibility(View.VISIBLE);
+        }
     }
 }
 
