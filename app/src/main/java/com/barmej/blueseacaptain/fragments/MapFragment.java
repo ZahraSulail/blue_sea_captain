@@ -36,6 +36,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
+    /*
+     Variables references
+     */
     private GoogleMap mMap;
     private Marker startPointMarker;
     private Marker destinationMarker;
@@ -50,87 +53,106 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate( R.layout.fragment_map, container, false );
+        return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated( view, savedInstanceState );
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById( R.id.fragment_map );
+        super.onViewCreated(view, savedInstanceState);
+
+        /*
+        Find fragment by id and assign it to mapFragment variables
+         */
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragment_map);
         if (mapFragment != null) {
-            mapFragment.getMapAsync( (OnMapReadyCallback) this );
+            mapFragment.getMapAsync((OnMapReadyCallback) this);
         }
 
-        selectStartPointButton = view.findViewById( R.id.button_select_start );
-        selectDestinationPointButtont = view.findViewById( R.id.button_select_destination );
+        /*
+         Find views by id and assign them to variables
+         */
+        selectStartPointButton = view.findViewById(R.id.button_select_start);
+        selectDestinationPointButtont = view.findViewById(R.id.button_select_destination);
 
-        selectStartPointButton.setOnClickListener( new View.OnClickListener() {
+        /*
+        click on this button to select start point coordinates
+         */
+        selectStartPointButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mStartPointLatng != null) {
-                    setStartPointMarker( mStartPointLatng );
-                    selectStartPointButton.setVisibility( View.GONE );
-                    selectDestinationPointButtont.setVisibility( View.VISIBLE );
+                if (mStartPointLatng != null) {
+                    setStartPointMarker(mStartPointLatng);
+                    selectStartPointButton.setVisibility(View.GONE);
+                    selectDestinationPointButtont.setVisibility(View.VISIBLE);
                 } else {
-                    Toast.makeText( getContext(), R.string.add_start_point, Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(getContext(), R.string.add_start_point, Toast.LENGTH_SHORT).show();
                 }
 
             }
-        } );
+        });
 
-        selectDestinationPointButtont.setOnClickListener( new View.OnClickListener() {
+         /*
+        click on this button to select destination point coordinates then move to AddTripFragment
+         */
+        selectDestinationPointButtont.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mDestinationLatng != null) {
-                    setDestinationMarker( mDestinationLatng );
+                    setDestinationMarker(mDestinationLatng);
                     Bundle bundle = new Bundle();
-                    bundle.putParcelable( Constants.START_POINT_LATNG, mStartPointLatng );
-                    bundle.putParcelable( Constants.DESTINATION_LATNG, mDestinationLatng );
+                    bundle.putParcelable(Constants.START_POINT_LATNG, mStartPointLatng);
+                    bundle.putParcelable(Constants.DESTINATION_LATNG, mDestinationLatng);
                     AddTripFragment addTripFragment = new AddTripFragment();
-                    addTripFragment.setArguments( bundle );
+                    addTripFragment.setArguments(bundle);
                     if (getFragmentManager() != null) {
-                        getFragmentManager().beginTransaction().replace( R.id.map_container, addTripFragment )
+                        getFragmentManager().beginTransaction().replace(R.id.map_container, addTripFragment)
                                 .commit();
-                        selectDestinationPointButtont.setVisibility( View.GONE );
+                        selectDestinationPointButtont.setVisibility(View.GONE);
                     }
 
-                }else{
-                    Toast.makeText( getContext(), R.string.add_destination_point, Toast.LENGTH_SHORT ).show();
+                } else {
+                    Toast.makeText(getContext(), R.string.add_destination_point, Toast.LENGTH_SHORT).show();
                 }
             }
-        } );
+        });
     }
 
     /*
-        Check Location Permission
+       Check Location Permission
      */
     private void checkLocationPermissionAndSetUpUserLocation() {
-        if (ContextCompat.checkSelfPermission( getActivity(), Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_DENIED) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             setUpUserLocation();
         } else {
-            ActivityCompat.requestPermissions( getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_LOCATION_PERMISSION );
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_LOCATION_PERMISSION);
 
         }
     }
 
+    /*
+     onMapReady method to set start and destination points on the map
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setOnMapClickListener( new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if(selectStartPointButton.getVisibility() == View.VISIBLE) {
-                    setStartPointMarker( latLng );
+                if (selectStartPointButton.getVisibility() == View.VISIBLE) {
+                    setStartPointMarker(latLng);
                 } else {
-                    setDestinationMarker( latLng );
+                    setDestinationMarker(latLng);
                 }
             }
-        } );
+        });
 
         checkLocationPermissionAndSetUpUserLocation();
     }
 
+    /*
+     onRequestPermissionsResult to check request location code
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == Constants.REQUEST_LOCATION_PERMISSION) {
@@ -142,42 +164,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         } else {
-            super.onRequestPermissionsResult( requestCode, permissions, grantResults );
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
     /*
-Update user location method
-*/
+   Update user location method when run the app
+   */
     private void setUpUserLocation() {
         if (mMap == null) return;
-        if (ActivityCompat.checkSelfPermission( getActivity(), Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mMap.setMyLocationEnabled( true );
-        FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient( getActivity() );
-        locationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<Location>() {
+        mMap.setMyLocationEnabled(true);
+        FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        locationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
-                    LatLng currentLatng = new LatLng( location.getLatitude(), location.getLongitude() );
-                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom( currentLatng, 16 );
-                    mMap.moveCamera( update );
+                    LatLng currentLatng = new LatLng(location.getLatitude(), location.getLongitude());
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(currentLatng, 16);
+                    mMap.moveCamera(update);
                 }
 
             }
-        } );
+        });
     }
 
 
     /*
-    Remove map location layout
+    Remove map location layout after app closing
    */
     public void removeMapLocationLayout() {
         if (mMap == null) return;
-        if (ContextCompat.checkSelfPermission( getActivity(), Manifest.permission.ACCESS_FINE_LOCATION )
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled( false );
+            mMap.setMyLocationEnabled(false);
         }
     }
 
@@ -189,20 +211,20 @@ Update user location method
         return mMap.getCameraPosition().target;
     }
 
-     /*
-   Position marker on the map
-   */
+    /*
+  Position marker on the map
+  */
     public void setStartPointMarker(LatLng target) {
         this.mStartPointLatng = target;
         if (mMap == null) return;
         if (startPointMarker == null) {
-            BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource( R.drawable.position );
+            BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource(R.drawable.position);
             MarkerOptions options = new MarkerOptions();
-            options.icon( descriptor );
-            options.position( target );
-            startPointMarker = mMap.addMarker( options );
+            options.icon(descriptor);
+            options.position(target);
+            startPointMarker = mMap.addMarker(options);
         } else {
-            startPointMarker.setPosition( target );
+            startPointMarker.setPosition(target);
         }
     }
 
@@ -211,36 +233,40 @@ Update user location method
     */
 
     public void setDestinationMarker(LatLng target) {
-       this.mDestinationLatng = target;
+        this.mDestinationLatng = target;
         if (mMap == null) return;
         if (destinationMarker == null) {
-            BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource( R.drawable.destination );
+            BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource(R.drawable.destination);
             MarkerOptions options = new MarkerOptions();
-            options.icon( descriptor );
-            options.position( target );
-            destinationMarker = mMap.addMarker( options );
+            options.icon(descriptor);
+            options.position(target);
+            destinationMarker = mMap.addMarker(options);
         } else {
-            destinationMarker.setPosition( target );
+            destinationMarker.setPosition(target);
         }
     }
-    public void setTripMarker(LatLng target){
+
+    /*
+     Get the ship marker on the map during the trip
+     */
+    public void setTripMarker(LatLng target) {
 
         this.tripLalng = target;
-        if(mMap == null) return;
-        if(tripMarker == null){
+        if (mMap == null) return;
+        if (tripMarker == null) {
             BitmapDescriptor descriptor = BitmapDescriptorFactory.fromResource((R.drawable.boat));
             MarkerOptions options = new MarkerOptions();
             options.icon(descriptor);
             options.position(target);
             tripMarker = mMap.addMarker(options);
-        }else{
+        } else {
             tripMarker.setPosition(target);
         }
 
     }
 
     /*
-     Clear map and reset markers status
+     Clear map and reset markers status after arrived
      */
     public void reset() {
         if (mMap == null) return;
@@ -249,8 +275,6 @@ Update user location method
         destinationMarker = null;
         setUpUserLocation();
     }
-
-
 
     public void setOnPermissionFailListener(PermissionFailListener permissionFailListener) {
         this.permissionFailListener = permissionFailListener;

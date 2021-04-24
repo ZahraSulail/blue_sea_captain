@@ -53,64 +53,72 @@ public class AddTripFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate( R.layout.fragment_add_trip, container, false );
+        return inflater.inflate(R.layout.fragment_add_trip, container, false);
 
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated( view, savedInstanceState );
+        super.onViewCreated(view, savedInstanceState);
 
         Bundle bundle = this.getArguments();
+        mStartPointSelectedLatng = bundle.getParcelable(Constants.START_POINT_LATNG);
+        mDestinationSelectedLatng = bundle.getParcelable(Constants.DESTINATION_LATNG);
 
-        mStartPointSelectedLatng = bundle.getParcelable( Constants.START_POINT_LATNG );
-        mDestinationSelectedLatng = bundle.getParcelable( Constants.DESTINATION_LATNG );
+        /*
+         Find views by Ids and assigned them to variables
+         */
+        mStartTextInputLayout = view.findViewById(R.id.text_input_layout_start);
+        mStartEditText = view.findViewById(R.id.text_input_edit_text_start);
+        mDestinationTextInputLayout = view.findViewById(R.id.text_input_layout_destination);
+        mDestinationEditText = view.findViewById(R.id.text_input_edit_text_destination);
+        mAvailableSeatsTextIputLayout = view.findViewById(R.id.text_input_layout_available_seats);
+        mAvailableSeatsEditText = view.findViewById(R.id.text_input_edit_text_avalable_seats);
+        mAddTripButton = view.findViewById(R.id.button_add);
+        mDatePicker = view.findViewById(R.id.date_picker);
 
-
-        // mStartPointSelectedLatng = getIntent().getParcelableExtra( Constants.START_POINT_LATNG);
-        //mDestinationSelectedLatng = getIntent().getParcelableExtra(Constants.DESTINATION_LATNG);
-
-        mStartTextInputLayout = view.findViewById( R.id.text_input_layout_start);
-        mStartEditText = view.findViewById( R.id.text_input_edit_text_start );
-        mDestinationTextInputLayout = view.findViewById( R.id.text_input_layout_destination );
-        mDestinationEditText = view.findViewById( R.id.text_input_edit_text_destination );
-        mAvailableSeatsTextIputLayout = view.findViewById( R.id.text_input_layout_available_seats );
-        mAvailableSeatsEditText = view.findViewById( R.id.text_input_edit_text_avalable_seats );
-        mAddTripButton = view.findViewById( R.id.button_add );
-        mDatePicker = view.findViewById( R.id.date_picker );
-
-        databaseReference = FirebaseDatabase.getInstance().getReference().child( "Trip_Details" );
+        /*
+         Get instance from DatabaseRefernece
+         */
+        databaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.TRIP_REF_PATH);
         mTrip = new Trip();
 
-        mAddTripButton.setOnClickListener( new View.OnClickListener() {
+        /*
+        mAddTripButton to add a new trip to firebase real time databass
+         */
+        mAddTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addTripToFirebase();
             }
-        } );
+        });
 
 
     }
 
-    private void addTripToFirebase(){
+    /*
+     addTripToFirebase method to add a new trip firebaseDatabse
+     */
+    private void addTripToFirebase() {
 
-        mStartTextInputLayout.setError( null );
-        mDestinationTextInputLayout.setError( null );
-        mAvailableSeatsTextIputLayout.setError( null );
+        mStartTextInputLayout.setError(null);
+        mDestinationTextInputLayout.setError(null);
+        mAvailableSeatsTextIputLayout.setError(null);
 
-        if(TextUtils.isEmpty( mStartEditText.getText())){
-            mStartTextInputLayout.setError( getString( R.string.error_msg_position));
+        if (TextUtils.isEmpty(mStartEditText.getText())) {
+            mStartTextInputLayout.setError(getString(R.string.error_msg_position));
             return;
         }
-        if(TextUtils.isEmpty(mDestinationEditText.getText())){
-            mDestinationTextInputLayout.setError( getString( R.string.error_msg_destination));
+        if (TextUtils.isEmpty(mDestinationEditText.getText())) {
+            mDestinationTextInputLayout.setError(getString(R.string.error_msg_destination));
             return;
         }
-        if(TextUtils.isEmpty( mAvailableSeatsEditText.getText())){
-            mAvailableSeatsTextIputLayout.setError( getString( R.string.eroor_msg_available_seats));
+        if (TextUtils.isEmpty(mAvailableSeatsEditText.getText())) {
+            mAvailableSeatsTextIputLayout.setError(getString(R.string.eroor_msg_available_seats));
             return;
         }
 
+        //Trip information added to firebase
         addNewTrip();
     }
 
@@ -120,39 +128,39 @@ public class AddTripFragment extends Fragment {
     public void addNewTrip() {
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set( Calendar.DAY_OF_MONTH, mDatePicker.getDayOfMonth());
-        calendar.set( Calendar.MONTH, mDatePicker.getMonth() );
+        calendar.set(Calendar.DAY_OF_MONTH, mDatePicker.getDayOfMonth());
+        calendar.set(Calendar.MONTH, mDatePicker.getMonth());
         calendar.set(Calendar.YEAR, mDatePicker.getYear());
 
-        mTrip.setStatus( Trip.Status.AVAILABLE.name());
+        mTrip.setStatus(Trip.Status.AVAILABLE.name());
         mTrip.setStartPortName(mStartEditText.getText().toString());
-        mTrip.setDestinationSeaportName( mDestinationEditText.getText().toString());
-        mTrip.setAvailableSeats( Integer.parseInt( mAvailableSeatsEditText.getText().toString()));
-        mTrip.setDateTime( calendar.getTimeInMillis());
+        mTrip.setDestinationSeaportName(mDestinationEditText.getText().toString());
+        mTrip.setAvailableSeats(Integer.parseInt(mAvailableSeatsEditText.getText().toString()));
+        mTrip.setDateTime(calendar.getTimeInMillis());
 
-        mTrip.setStartLat( mStartPointSelectedLatng.latitude );
-        mTrip.setStartLng( mStartPointSelectedLatng.longitude );
+        mTrip.setStartLat(mStartPointSelectedLatng.latitude);
+        mTrip.setStartLng(mStartPointSelectedLatng.longitude);
 
-        mTrip.setDestinationLat( mDestinationSelectedLatng.latitude );
-        mTrip.setDestinationLng( mDestinationSelectedLatng.longitude );
+        mTrip.setDestinationLat(mDestinationSelectedLatng.latitude);
+        mTrip.setDestinationLng(mDestinationSelectedLatng.longitude);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-        final String date = simpleDateFormat.format( new Date(mTrip.getDateTime()) );
-        databaseReference.child( FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date ).addListenerForSingleValueEvent( new ValueEventListener() {
+        final String date = simpleDateFormat.format(new Date(mTrip.getDateTime()));
+        databaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Trip trip = snapshot.getValue(Trip.class);
-                if(trip == null) {
-                    databaseReference.child( FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date ).setValue( mTrip ).addOnSuccessListener( new OnSuccessListener<Void>() {
+                if (trip == null) {
+                    databaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid() + "_" + date).setValue(mTrip).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText( getContext(), R.string.trip_added, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent (getContext(), MainActivity.class );
-                            startActivity( intent );
+                            Toast.makeText(getContext(), R.string.trip_added, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getContext(), MainActivity.class);
+                            startActivity(intent);
                         }
-                    } );
+                    });
                 } else {
-                    Toast.makeText( getContext(), R.string.there_is_a_trip_in_this_time, Toast.LENGTH_SHORT ).show();
+                    Toast.makeText(getContext(), R.string.there_is_a_trip_in_this_time, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -160,6 +168,6 @@ public class AddTripFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        } );
+        });
     }
 }

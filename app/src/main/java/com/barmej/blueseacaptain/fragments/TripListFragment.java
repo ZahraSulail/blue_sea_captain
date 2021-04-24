@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
 import com.barmej.blueseacaptain.ctivities.AddNewTripActivity;
@@ -59,6 +60,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated( view, savedInstanceState );
 
+
         mRecyclerView = view.findViewById( R.id.recycler_view );
         mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
         mTrips = new ArrayList<>();
@@ -69,13 +71,15 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         mAddButton = view.findViewById( R.id.button_add_trip );
 
         System.out.println( "CREATED!!" );
-        FirebaseDatabase.getInstance().getReference( "Trip_Details" ).addValueEventListener( new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference(Constants.TRIP_REF_PATH).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Trip trip = dataSnapshot.getValue( Trip.class );
+                        trip.setId(dataSnapshot.getKey());
                         mTrips.add( trip );
+                        System.out.println("Key: " + dataSnapshot.getKey());
                     }
                     mAdapter.notifyDataSetChanged();
                     System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
@@ -104,6 +108,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
     public void onTripClick(Trip trip) {
         FullStatus fullStatus = new FullStatus();
         fullStatus.setTrip( trip );
+        System.out.println("Full Status: " + fullStatus.getTrip().getId());
         TripDetalsFragment detalsFragment = TripDetalsFragment.getInstance(fullStatus);
         FragmentManager manager = getChildFragmentManager();
         manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment ).commit();

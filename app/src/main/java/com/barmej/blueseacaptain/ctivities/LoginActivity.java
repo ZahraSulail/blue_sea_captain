@@ -25,6 +25,10 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "EmailPassword";
+
+    /*
+     Defind the views required to display on this activity
+    */
     private TextInputLayout emailTextInputLayout;
     private TextInputLayout passwordTextInputLayout;
     private TextInputEditText emailTextInputEditText;
@@ -35,97 +39,114 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate( savedInstanceState );
-        setContentView( R.layout.activity_login );
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
-        emailTextInputLayout = findViewById( R.id.text_input_layout_email );
-        passwordTextInputLayout = findViewById( R.id.text_input_password );
-        emailTextInputEditText = findViewById( R.id.edit_text_email );
-        paswwordTextInputEditText = findViewById( R.id.edit_text_paswword );
-        logInButton = findViewById( R.id.button_log_in );
+        /*
+         Find views by Ids and assigned them to variables
+         */
+        emailTextInputLayout = findViewById(R.id.text_input_layout_email);
+        passwordTextInputLayout = findViewById(R.id.text_input_password);
+        emailTextInputEditText = findViewById(R.id.edit_text_email);
+        paswwordTextInputEditText = findViewById(R.id.edit_text_paswword);
+        logInButton = findViewById(R.id.button_log_in);
         progressBar = findViewById(R.id.progress_bar);
 
+        /*
+         Get a Firebase instance and check if Current user is exist
+         */
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser != null){
-             hideForm(true);
-            fetchCaptainProfileAndLogin( firebaseUser.getUid());
+        if (firebaseUser != null) {
+            hideForm(true);
+            fetchCaptainProfileAndLogin(firebaseUser.getUid());
         }
 
-
-
-
-        logInButton.setOnClickListener( new View.OnClickListener() {
+        /*
+         logInButton setOnClicklistener "handle loginClicked() method
+         */
+        logInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginClicked();
             }
-        } );
-
+        });
 
 
     }
 
+    /*
+     Login to firebase through button clicked
+     */
     private void loginClicked() {
-        if (!isValiEmail( emailTextInputEditText.getText() )) {
-            emailTextInputLayout.setError( getString( R.string.invalid_email ) );
+        if (!isValiEmail(emailTextInputEditText.getText())) {
+            emailTextInputLayout.setError(getString(R.string.invalid_email));
             return;
         }
         if (paswwordTextInputEditText.getText().length() < 6) {
-            passwordTextInputLayout.setError( getString( R.string.invalid_password_length ) );
+            passwordTextInputLayout.setError(getString(R.string.invalid_password_length));
             return;
         }
 
         hideForm(true);
-
-       FirebaseAuth.getInstance().signInWithEmailAndPassword( emailTextInputEditText.getText().toString(), paswwordTextInputEditText.getText().toString() )
-                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+        //Signin firebase with email and password
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(emailTextInputEditText.getText().toString(), paswwordTextInputEditText.getText().toString())
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
                             String captainId = task.getResult().getUser().getUid();
-                            fetchCaptainProfileAndLogin( captainId );
+                            fetchCaptainProfileAndLogin(captainId);
                         } else {
                             hideForm(false);
-                            Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG ).show();
+                            Toast.makeText(LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG).show();
                         }
                     }
-                } );
+                });
 
 
     }
 
-    public static boolean isValiEmail(CharSequence target) {
-        return (!TextUtils.isEmpty( target ) && Patterns.EMAIL_ADDRESS.matcher( target ).matches());
+    /*
+     Validate email method
+     */
+    private static boolean isValiEmail(CharSequence target) {
+        return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
 
     }
 
+    /*
+     FetchCaptainProfileAndLogin method to get user information from firebase
+     */
     private void fetchCaptainProfileAndLogin(String captainId) {
-        TripManager.getInstance().getCaptainProfile( captainId, new CallBack() {
+        TripManager.getInstance().getCaptainProfile(captainId, new CallBack() {
             @Override
             public void onComplete(boolean isSeccessful) {
                 if (isSeccessful) {
-                    Toast.makeText( LoginActivity.this, R.string.log_in_successfull, Toast.LENGTH_SHORT ).show();
-                    startActivity( new Intent( LoginActivity.this, MainActivity.class ) );
+                    Toast.makeText(LoginActivity.this, R.string.log_in_successfull, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    Toast.makeText( LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG ).show();
+                    Toast.makeText(LoginActivity.this, R.string.login_error, Toast.LENGTH_LONG).show();
                     hideForm(false);
                 }
             }
-        } );
+        });
 
     }
 
-    private void hideForm(boolean hide){
-        if(hide){
+    /*
+     hideForm method to hide views if need
+     */
+    private void hideForm(boolean hide) {
+        if (hide) {
             progressBar.setVisibility(View.VISIBLE);
             emailTextInputLayout.setVisibility(View.GONE);
             emailTextInputEditText.setVisibility(View.GONE);
             passwordTextInputLayout.setVisibility(View.GONE);
             paswwordTextInputEditText.setVisibility(View.GONE);
             logInButton.setVisibility(View.GONE);
-        }else{
+        } else {
             progressBar.setVisibility(View.GONE);
             emailTextInputLayout.setVisibility(View.VISIBLE);
             emailTextInputEditText.setVisibility(View.VISIBLE);
