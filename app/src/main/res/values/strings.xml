@@ -41,5 +41,6 @@
     <string name="add_destination_point">يجب تحديد موقع الوصول</string>
     <string name="add_start_point">الرجاء تحديد موقع البدء</string>
     <string name="permission_required">الصلاحية مطلوبة</string>
+    <string name="trip_is_arrived">انتهت الرحلة</string>
 </resources>
 

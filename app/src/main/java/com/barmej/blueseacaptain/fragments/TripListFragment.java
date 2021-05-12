@@ -111,7 +111,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         System.out.println("Full Status: " + fullStatus.getTrip().getId());
         TripDetalsFragment detalsFragment = TripDetalsFragment.getInstance(fullStatus);
         FragmentManager manager = getChildFragmentManager();
-        manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment ).commit();
+        manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment).addToBackStack(null).commit();
         mAddButton.setVisibility( View.GONE );
     }
 }

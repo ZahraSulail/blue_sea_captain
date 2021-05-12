@@ -76,22 +76,50 @@ public class TripManager {
         } );
     }
 
+    public void assignTrip(String tripId, OnSuccessListener<Void> onSuccessListener) {
+        captain.setAssignedTrip(tripId);
+        System.out.println("Captin ID: " + captain.getId() + " Captin Name" + captain.getName() + " Trip ID: " + captain.getAssignedTrip());
+        database.getReference().child(Constants.CAPTAINS_REF_PATH)
+                .child(captain.getId())
+                .setValue(captain)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        trip.setStatus( Trip.Status.GOING_TO_DESTINATION.name() );
+                        database.getReference( Constants.TRIP_REF_PATH ).child( trip.getId() ).setValue( trip )
+                        .addOnSuccessListener(onSuccessListener)
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 
-    public void getTripAndNotifyStatuss(StatusCallBack statusCallBack) {
+    }
+
+    public void getTripAndNotifyStatus(StatusCallBack statusCallBack) {
         this.statusCallBack = statusCallBack;
         if(captain.getAssignedTrip() == null) return;
         tripStatusListener = database.getReference( Constants.TRIP_REF_PATH ).child( captain.getAssignedTrip() )
                 .addValueEventListener( new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        //System.out.println("Trip_Details: " + snapshot.toString());
+                        System.out.println("Trip_Details: " + snapshot.toString());
                         trip = snapshot.getValue( Trip.class );
-                        trip.setId(snapshot.getKey());
                         if (trip != null) {
+                            trip.setId(snapshot.getKey());
                             FullStatus fullStatus = new FullStatus();
                             fullStatus.setCaptain( captain );
                             fullStatus.setTrip( trip );
-                            notifyListiner( fullStatus );
+                            notifyListener( fullStatus );
                         } else {
                             throw new RuntimeException("Trip not exist");
                         }
@@ -107,10 +135,9 @@ public class TripManager {
     /*
       listiner to notify about statusCallBack
      */
-    private void notifyListiner(FullStatus fullStatus) {
+    private void notifyListener(FullStatus fullStatus) {
         if (statusCallBack != null) {
             statusCallBack.onUpdate( fullStatus );
-
         }
 
     }
@@ -126,7 +153,6 @@ public class TripManager {
         database.getReference( Constants.TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
     }
 
-
     /*
       Tracing trip when it arrived to destination
      */
@@ -135,11 +161,12 @@ public class TripManager {
         database.getReference( Constants.TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
         captain.setStatus( Captain.Status.AVAILABEL.name() );
         captain.setAssignedTrip( null );
-        trip = null;
         database.getReference( Constants.CAPTAINS_REF_PATH ).child( captain.getId() ).setValue( captain );
         FullStatus fullStatus = new FullStatus();
         fullStatus.setCaptain( captain );
-        notifyListiner( fullStatus );
+        fullStatus.setTrip(trip);
+        notifyListener( fullStatus );
+        trip = null;
     }
 
 
@@ -154,32 +181,6 @@ public class TripManager {
         statusCallBack = null;
     }
 
-    public void assignTrip(String tripId, OnSuccessListener<Void> onSuccessListener) {
-        captain.setAssignedTrip(tripId);
-        System.out.println("Captin ID: " + captain.getId() + " Captin Name" + captain.getName() + " Trip ID: " + captain.getAssignedTrip());
-        database.getReference().child(Constants.CAPTAINS_REF_PATH).child(captain.getId()).setValue(captain).addOnSuccessListener(onSuccessListener).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        });
-        trip.setStatus( Trip.Status.GOING_TO_DESTINATION.name() );
-        database.getReference( Constants.TRIP_REF_PATH ).child( trip.getId() ).setValue( trip ).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                System.out.println("Updated");
-            }
-        });
-        FullStatus fullStatus = new FullStatus();
-        fullStatus.setTrip( trip );
-        notifyListiner( fullStatus );
 
-
-    }
 
 }
