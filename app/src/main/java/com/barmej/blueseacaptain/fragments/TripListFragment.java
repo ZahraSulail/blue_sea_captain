@@ -75,6 +75,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    mTrips.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Trip trip = dataSnapshot.getValue( Trip.class );
                         trip.setId(dataSnapshot.getKey());

@@ -149,7 +149,6 @@ public class TripManager {
         System.out.println("Lat: " + lat + " Lng: " + lng );
         trip.setCurrentLat( lat );
         trip.setCurrentLng( lng );
-        // هنا يوجد خطا يحتاج اصلاح
         database.getReference( Constants.TRIP_REF_PATH ).child( trip.getId() ).setValue( trip );
     }
 

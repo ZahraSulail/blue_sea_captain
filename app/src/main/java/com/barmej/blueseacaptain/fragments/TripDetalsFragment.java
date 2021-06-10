@@ -52,7 +52,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     private Marker shipLocationMarker;
 
     /*
-      Defind the views required to display on this fragment
+      Define the views required to display on this fragment
      */
     private CardView mMainCardView;
     private TextView mDataTextView;
@@ -202,6 +202,14 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 TripManager.getInstance().updateToArrivedToDestination();
+
+               /* TripManager.getInstance().getTripAndNotifyStatus(new StatusCallBack() {
+                    @Override
+                    public void onUpdate(FullStatus fullStatus) {
+                        updateStatus(fullStatus);
+
+                    }
+                });*/
                 //هل نحتاج statusCallback على غرار زر بدا الرحلة
 
 
@@ -221,6 +229,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onUpdate(FullStatus fullStatus) {
                 updateStatus(fullStatus);
+
             }
         });
     }
@@ -242,6 +251,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         super.onStop();
         mMapView.onStop();
         TripManager.getInstance().stopListiningToStatus();
+        //stopTracking();
     }
 
     @Override
@@ -314,13 +324,16 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             mStartMaterialButton.setVisibility(View.GONE);
             mArrivedMaterialButton.setVisibility(View.VISIBLE);
             startTracking();
-        } else if (tripStatus.equals(Trip.Status.ARRIVED)) {
+
+        } else if (tripStatus.equals(Trip.Status.ARRIVED.name())) {
           // hide start and arrive buttons and show arrived label
-            mStartMaterialButton.setVisibility(View.GONE);
-            mArrivedMaterialButton.setVisibility(View.GONE);
-            Toast.makeText(getContext(), R.string.trip_is_arrived, Toast.LENGTH_SHORT).show();
+           // mStartMaterialButton.setVisibility(View.GONE);
+            //mArrivedMaterialButton.setVisibility(View.GONE);
+
+            //Toast.makeText(getContext(), R.string.trip_is_arrived, Toast.LENGTH_SHORT).show();
+
             // Stop tracking
-            stopTracking();
+            // stopTracking();
         } else {
             mStartMaterialButton.setVisibility(View.VISIBLE);
             mArrivedMaterialButton.setVisibility(View.GONE);
@@ -376,12 +389,14 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /*
-     stopTracking method caaled after trip arriving
+     stopTracking method called after trip arriving
      */
 
     public void stopTracking(){
-        TripManager.getInstance().stopListiningToStatus();
-
+       if(locationCallback != null && locationClient != null){
+           locationClient.removeLocationUpdates(locationCallback);
+           locationCallback = null;
+       }
     }
 
     /*
