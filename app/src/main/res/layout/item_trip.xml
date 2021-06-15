@@ -32,14 +32,14 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:background="@drawable/background_capsule"
-            android:drawableStart="@drawable/ic_start_point_gray_24dp"
             android:drawablePadding="4dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline3"
             app:layout_constraintEnd_toStartOf="@+id/imageView2"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/item_text_view_date"
-            tools:text="Kuwait" />
+            tools:text="Kuwait"
+            app:drawableStartCompat="@drawable/ic_start_point_gray_24dp" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -61,14 +61,14 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:background="@drawable/background_capsule"
-            android:drawableStart="@drawable/ic_end_point_gray_24dp"
             android:drawablePadding="4dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageView2"
             app:layout_constraintTop_toBottomOf="@+id/item_text_view_date"
-            tools:text="Morocco" />
+            tools:text="Morocco"
+            app:drawableStartCompat="@drawable/ic_end_point_gray_24dp" />
 
 
         <LinearLayout

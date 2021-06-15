@@ -43,7 +43,6 @@ public class AddTripFragment extends Fragment {
     private TextInputEditText mStartEditText;
     private TextInputEditText mDestinationEditText;
     private TextInputEditText mAvailableSeatsEditText;
-    private MaterialButton mAddTripButton;
     private DatePicker mDatePicker;
     private Trip mTrip;
     private DatabaseReference databaseReference;
@@ -74,7 +73,7 @@ public class AddTripFragment extends Fragment {
         mDestinationEditText = view.findViewById(R.id.text_input_edit_text_destination);
         mAvailableSeatsTextIputLayout = view.findViewById(R.id.text_input_layout_available_seats);
         mAvailableSeatsEditText = view.findViewById(R.id.text_input_edit_text_avalable_seats);
-        mAddTripButton = view.findViewById(R.id.button_add);
+        MaterialButton mAddTripButton = view.findViewById(R.id.button_add);
         mDatePicker = view.findViewById(R.id.date_picker);
 
         /*

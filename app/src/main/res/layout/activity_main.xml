@@ -5,11 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ctivities.MainActivity"
-    android:id="@+id/layout_main">
+    android:id="@id/layout_main">
 
-    <fragment
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/trip_list_container"
-            android:name="com.barmej.blueseacaptain.fragments.TripListFragment"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

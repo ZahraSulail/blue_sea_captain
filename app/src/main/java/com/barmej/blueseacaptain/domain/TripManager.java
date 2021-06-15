@@ -1,5 +1,7 @@
 package com.barmej.blueseacaptain.domain;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 
 import com.barmej.blueseacaptain.Constants;
@@ -42,7 +44,6 @@ public class TripManager {
      */
     public TripManager() {
         database = FirebaseDatabase.getInstance();
-
     }
 
     /*
@@ -62,11 +63,7 @@ public class TripManager {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 //System.out.println("captain: " + snapshot.toString());
                 captain = snapshot.getValue( Captain.class );
-                if(captain != null){
-                        callback.onComplete( true );
-                } else {
-                        callback.onComplete( false );
-                }
+                callback.onComplete(captain != null);
             }
 
             @Override
@@ -76,7 +73,10 @@ public class TripManager {
         } );
     }
 
-    public void assignTrip(String tripId, OnSuccessListener<Void> onSuccessListener) {
+    public boolean assignTrip(String tripId, OnSuccessListener<Void> onSuccessListener) {
+        if(!TextUtils.isEmpty(captain.getAssignedTrip())) {
+            return false;
+        }
         captain.setAssignedTrip(tripId);
         System.out.println("Captin ID: " + captain.getId() + " Captin Name" + captain.getName() + " Trip ID: " + captain.getAssignedTrip());
         database.getReference().child(Constants.CAPTAINS_REF_PATH)
@@ -102,12 +102,12 @@ public class TripManager {
                         e.printStackTrace();
                     }
                 });
-
+        return true;
     }
 
-    public void getTripAndNotifyStatus(StatusCallBack statusCallBack) {
+    public void getTripAndNotifyStatus(String tripId, StatusCallBack statusCallBack) {
         this.statusCallBack = statusCallBack;
-        if(captain.getAssignedTrip() == null) return;
+        if(captain.getAssignedTrip() == null || !captain.getAssignedTrip().equals(tripId)) return;
         tripStatusListener = database.getReference( Constants.TRIP_REF_PATH ).child( captain.getAssignedTrip() )
                 .addValueEventListener( new ValueEventListener() {
                     @Override
@@ -139,7 +139,6 @@ public class TripManager {
         if (statusCallBack != null) {
             statusCallBack.onUpdate( fullStatus );
         }
-
     }
 
     /*
@@ -166,9 +165,8 @@ public class TripManager {
         fullStatus.setTrip(trip);
         notifyListener( fullStatus );
         trip = null;
+        System.out.println("done");
     }
-
-
 
     /*
     Stop eventListener to trip status

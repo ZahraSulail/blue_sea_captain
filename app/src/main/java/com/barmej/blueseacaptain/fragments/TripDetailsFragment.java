@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
+import com.barmej.blueseacaptain.ctivities.MainActivity;
 import com.barmej.blueseacaptain.domain.TripManager;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
@@ -42,8 +43,11 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
+public class TripDetailsFragment extends Fragment
+        implements OnMapReadyCallback {
 
+
+    MainActivity mainActivity;
     /*
      Map markers
      */
@@ -106,8 +110,8 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     /*
      put serializable arguments to TripDetailsFragment
      */
-    public static TripDetalsFragment getInstance(FullStatus status) {
-        TripDetalsFragment detalsFragment = new TripDetalsFragment();
+    public static TripDetailsFragment getInstance(FullStatus status) {
+        TripDetailsFragment detalsFragment = new TripDetailsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(Constants.INITIAL_STATUS_EXTRA, status);
         detalsFragment.setArguments(bundle);
@@ -120,6 +124,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
     }
 
     @Nullable
@@ -157,6 +162,7 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
         mMapView.getMapAsync(this);
 
         // Get trip status by FullStatuse object
+        assert getArguments() != null;
         status = (FullStatus) getArguments().getSerializable(Constants.INITIAL_STATUS_EXTRA);
 
         /*
@@ -176,11 +182,11 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
 
-                TripManager.getInstance().assignTrip(mTrip.getId(), new OnSuccessListener<Void>() {
+                boolean isAssigned = TripManager.getInstance().assignTrip(mTrip.getId(), new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void o) {
 
-                        TripManager.getInstance().getTripAndNotifyStatus(new StatusCallBack() {
+                        TripManager.getInstance().getTripAndNotifyStatus(mTrip.getId(), new StatusCallBack() {
                             @Override
                             public void onUpdate(FullStatus fullStatus) {
                                 System.out.println("Trip Started");
@@ -191,6 +197,9 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
                     }
                 });
 
+                if(!isAssigned) {
+                    Toast.makeText(getContext(), "Please end the current trip first", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -218,18 +227,34 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /*
-      Map lifeCycle methods
+    @Override
+    public void onAttach(@NonNull @org.jetbrains.annotations.NotNull Context context) {
+        super.onAttach(context);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
      */
+
+    /*
+          Map lifeCycle methods
+         */
     @Override
     public void onStart() {
         super.onStart();
         mMapView.onStart();
 
-        TripManager.getInstance().getTripAndNotifyStatus(new StatusCallBack() {
+        TripManager.getInstance().getTripAndNotifyStatus(mTrip.getId(), new StatusCallBack() {
             @Override
             public void onUpdate(FullStatus fullStatus) {
+                System.out.println("Trip Status Monitor");
                 updateStatus(fullStatus);
-
             }
         });
     }
@@ -327,11 +352,9 @@ public class TripDetalsFragment extends Fragment implements OnMapReadyCallback {
 
         } else if (tripStatus.equals(Trip.Status.ARRIVED.name())) {
           // hide start and arrive buttons and show arrived label
-           // mStartMaterialButton.setVisibility(View.GONE);
-            //mArrivedMaterialButton.setVisibility(View.GONE);
-
-            //Toast.makeText(getContext(), R.string.trip_is_arrived, Toast.LENGTH_SHORT).show();
-
+            mStartMaterialButton.setVisibility(View.GONE);
+            mArrivedMaterialButton.setVisibility(View.GONE);
+            Toast.makeText(getContext(), R.string.trip_is_arrived, Toast.LENGTH_SHORT).show();
             // Stop tracking
             // stopTracking();
         } else {

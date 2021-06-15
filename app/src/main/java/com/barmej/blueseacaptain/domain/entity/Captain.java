@@ -10,6 +10,8 @@ public class Captain implements Serializable {
     private String assignedTrip;
 
 
+
+
     public Captain() {
 
     }
@@ -45,6 +47,8 @@ public class Captain implements Serializable {
     public void setAssignedTrip(String assignedTrip) {
         this.assignedTrip = assignedTrip;
     }
+
+
 
 
     public enum Status{

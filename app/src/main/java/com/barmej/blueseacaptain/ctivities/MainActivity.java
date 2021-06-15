@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         //FragmentManager to find Fragment by id
         FragmentManager manager = getSupportFragmentManager();
-        mTripListFragment = (TripListFragment) manager.findFragmentById(R.id.trip_list_container);
+        mTripListFragment = new TripListFragment();
+        manager.beginTransaction().add(R.id.layout_main, mTripListFragment).commit();
 
         /*
          Get instance from FoirebaseAuth
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }
 

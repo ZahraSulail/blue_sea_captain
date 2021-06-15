@@ -19,6 +19,7 @@ import com.barmej.blueseacaptain.Constants;
 import com.barmej.blueseacaptain.R;
 import com.barmej.blueseacaptain.adapter.TripItemsAdapter;
 import com.barmej.blueseacaptain.ctivities.AddNewTripActivity;
+import com.barmej.blueseacaptain.domain.entity.Captain;
 import com.barmej.blueseacaptain.domain.entity.FullStatus;
 import com.barmej.blueseacaptain.domain.entity.Trip;
 import com.barmej.blueseacaptain.inteerface.OnTripClickListiner;
@@ -50,6 +51,11 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
      */
     private ArrayList<Trip> mTrips;
 
+    /*
+     Object Captain
+     */
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -67,7 +73,7 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         mAdapter = new TripItemsAdapter( mTrips, TripListFragment.this );
         mRecyclerView.setAdapter( mAdapter );
         mRecyclerView.addItemDecoration( new DividerItemDecoration( getContext(), DividerItemDecoration.VERTICAL ) );
-
+        Captain captain = new Captain();
         mAddButton = view.findViewById( R.id.button_add_trip );
 
         System.out.println( "CREATED!!" );
@@ -77,10 +83,15 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
                 if (snapshot.exists()) {
                     mTrips.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        Trip trip = dataSnapshot.getValue( Trip.class );
+                        Trip trip = dataSnapshot.getValue(Trip.class);
                         trip.setId(dataSnapshot.getKey());
-                        mTrips.add( trip );
-                        System.out.println("Key: " + dataSnapshot.getKey());
+
+                        if(!trip.getStatus().equals(Trip.Status.ARRIVED.name())) {
+                            //if (trip.getId().equals(captain.getId())) {
+                                mTrips.add(trip);
+                                System.out.println("Key: " + dataSnapshot.getKey());
+                            }
+                        //}
                     }
                     mAdapter.notifyDataSetChanged();
                     System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
@@ -110,9 +121,16 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
         FullStatus fullStatus = new FullStatus();
         fullStatus.setTrip( trip );
         System.out.println("Full Status: " + fullStatus.getTrip().getId());
-        TripDetalsFragment detalsFragment = TripDetalsFragment.getInstance(fullStatus);
-        FragmentManager manager = getChildFragmentManager();
-        manager.beginTransaction().replace( R.id.trip_list_container, detalsFragment).addToBackStack(null).commit();
+
+        TripDetailsFragment detailsFragment = TripDetailsFragment.getInstance(fullStatus);
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        manager.beginTransaction().
+                replace( R.id.layout_main, detailsFragment)
+                .addToBackStack(null)
+                .commit();
+
         mAddButton.setVisibility( View.GONE );
     }
+
+
 }
