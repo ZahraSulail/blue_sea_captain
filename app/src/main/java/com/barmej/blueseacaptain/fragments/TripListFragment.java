@@ -90,8 +90,8 @@ public class TripListFragment extends Fragment implements OnTripClickListiner {
                             //if (trip.getId().equals(captain.getId())) {
                                 mTrips.add(trip);
                                 System.out.println("Key: " + dataSnapshot.getKey());
-                            }
-                        //}
+                            //}
+                        }
                     }
                     mAdapter.notifyDataSetChanged();
                     System.out.println( "snapshot" + snapshot.getKey() + " " + snapshot.getValue().toString() );
